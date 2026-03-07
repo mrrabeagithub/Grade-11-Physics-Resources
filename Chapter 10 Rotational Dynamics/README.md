@@ -2,15 +2,13 @@
 
 🎯 Learning Objectives
 
-Define and calculate the Moment of Inertia for various rigid bodies and apply the Parallel Axis Theorem.
+Calculate Moment of Inertia and apply the Parallel Axis Theorem.
 
 Analyze systems using Newton's Second Law for Rotation ($\tau = I\alpha$).
 
-Apply the principle of Conservation of Angular Momentum to isolated systems.
+Model Conservation of Angular Momentum in isolated systems.
 
-Calculate Rotational Kinetic Energy and analyze rolling without slipping using energy conservation principles.
-
-Bridge translational and rotational kinematics to model complex mechanical systems.
+Use Rotational Kinetic Energy to solve rolling-without-slipping problems.
 
 📂 Resource Directory
 
@@ -22,48 +20,52 @@ Link
 
 📝 Summary
 
-High-level overview of torque, inertia, and angular momentum.
+Core concepts and formula sheets.
 
 View Summaries
 
 📚 Study Guide
 
-In-depth notes and rigorous derivations of rotational laws.
+Derivations and deep-dives.
 
 View Guides
 
 📊 Infographics
 
-Visual maps comparing linear vs. rotational analogs.
+Linear vs. Rotational comparison maps.
 
 View Infographics
 
 ✍️ Worksheets
 
-Practice problems on torque, rolling, and collisions (PDF).
+Practice sets (PDF).
 
 View Worksheets
 
 🧠 SmartSheets
 
-Interactive calculators for Moment of Inertia & parallel axes.
+Interactive calculation tools.
 
 View SmartSheets
 
 🕹️ Simulations
 
-Web-based models (e.g., rolling objects on an incline, physical pendulums).
+Numerical RK4 Engines (Triple-View)
 
 Play Simulations
 
 🎬 Media
 
-Video explanations and real-world demonstrations.
+YouTube links and Video demos.
 
 Watch Media
 
-🔗 Highlighted Links
+🚀 Featured Simulation: [Insert Sim Name, e.g., The Physical Pendulum]
 
-(To be added: Core YouTube video links)
+Click the link below to launch the simulation directly in your browser:
 
-(To be added: Main HTML Simulation Link - e.g., RK4 Physical Pendulum Phase Space)
+👉 RUN LIVE SIMULATION
+
+Note: This simulation uses a high-fidelity RK4 integrator to ensure energy conservation. Includes Time-Domain, Phase Space, and Energy Bar charts.
+
+Facilitated by: [Your Name]
