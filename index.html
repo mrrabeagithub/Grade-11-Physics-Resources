@@ -72,7 +72,6 @@
                 // SORTING & FILTERING
                 const visibleItems = data.filter(item => {
                     const name = item.name.toLowerCase();
-                    // --- THE FILTER: Hides index, readme, and hidden files from students ---
                     return !(name === 'index.html' || name === 'readme.md' || name.startsWith('.'));
                 });
 
@@ -82,9 +81,14 @@
                     const card = document.createElement('a');
                     const ext = item.name.split('.').pop().toLowerCase();
                     
-                    if (item.type === 'dir') card.href = `./${item.name}/index.html`;
-                    else if (ext === 'html') card.href = `https://${repoOwner}.github.io/${repoName}/${currentPath}/${item.name}`;
-                    else card.href = item.html_url;
+                    // Unified link logic: All files use the live GitHub Pages URL
+                    if (item.type === 'dir') {
+                        card.href = `./${item.name}/index.html`;
+                    } else {
+                        // This constructs the direct live link: https://owner.github.io/repo/path/to/file.ext
+                        const pagesBase = `https://${repoOwner}.github.io/${repoName}/`;
+                        card.href = pagesBase + (currentPath ? currentPath + '/' : '') + item.name;
+                    }
 
                     card.target = "_blank";
                     card.className = "glass p-6 rounded-2xl flex flex-col justify-between card-hover border border-white/5 group";
@@ -93,7 +97,8 @@
                     let typeLabel = 'Resource';
                     if (item.type === 'dir') { icon = 'fa-folder text-amber-500'; typeLabel = 'Folder'; }
                     else if (ext === 'html') { icon = 'fa-play-circle text-emerald-400'; typeLabel = 'Interactive Sim'; }
-                    else if (ext === 'pdf') { icon = 'fa-file-pdf text-rose-400'; typeLabel = 'Document'; }
+                    else if (ext === 'pdf') { icon = 'fa-file-pdf text-rose-400'; typeLabel = 'PDF Summary'; }
+                    else if (['png', 'jpg', 'jpeg'].includes(ext)) { icon = 'fa-image text-blue-400'; typeLabel = 'Visual Aid'; }
 
                     card.innerHTML = `
                         <div>
