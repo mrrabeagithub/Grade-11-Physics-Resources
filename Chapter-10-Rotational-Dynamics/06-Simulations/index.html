@@ -17,7 +17,7 @@
     <div class="max-w-4xl mx-auto">
         <header class="mb-12 flex justify-between items-center">
             <div>
-                <h1 id="folder-name" class="text-3xl font-bold text-white mb-2 italic">Loading Resources...</h1>
+                <h1 id="folder-name" class="text-3xl font-bold text-white mb-2 italic tracking-tight">Loading Gallery...</h1>
                 <p class="text-slate-400">Automated resource directory for Grade 11 Physics</p>
             </div>
             <a href="../../index.html" class="bg-slate-800 hover:bg-slate-700 px-5 py-2 rounded-lg text-sm font-semibold transition">
@@ -26,7 +26,7 @@
         </header>
 
         <div id="file-grid" class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <!-- Files will be injected here -->
+            <!-- Files injected here -->
         </div>
 
         <div id="loader" class="text-center py-20">
@@ -36,7 +36,7 @@
         <div id="error-message" class="hidden glass p-6 rounded-2xl border-red-500/30 text-center">
             <i class="fas fa-exclamation-triangle text-red-400 text-3xl mb-4"></i>
             <p id="error-text" class="text-red-200 font-medium"></p>
-            <p class="text-slate-500 text-xs mt-2 text-balance">Ensure your folder structure on GitHub matches the URL path and that the Repository Name in the script is correct.</p>
+            <p class="text-slate-500 text-xs mt-2">Check: 1. Repo is Public? 2. Repo name in script is correct?</p>
         </div>
     </div>
 
@@ -56,30 +56,25 @@
             const titleElement = document.getElementById('folder-name');
 
             // 1. Determine the path from the URL
-            const pathSegments = window.location.pathname.split('/');
-            
-            // Get the current filename (e.g., index.html or smart_index.html) to ignore it
-            const currentFileName = pathSegments[pathSegments.length - 1];
+            const fullPath = window.location.pathname;
+            const pathSegments = fullPath.split('/').filter(s => s && s !== 'index.html');
 
-            // Find where the repository name sits to start the subfolder path
+            // Find repo index to extract subfolder path
             const repoIndex = pathSegments.indexOf(repoName);
             let segments = [];
             
             if (repoIndex !== -1) {
-                // Running on GitHub Pages
-                segments = pathSegments.slice(repoIndex + 1).filter(s => s && s !== currentFileName);
+                // We are on the web: mrrabeagithub.github.io/Grade-11-Physics-Resources/folder1/folder2
+                segments = pathSegments.slice(repoIndex + 1);
             } else {
-                // Local preview or different environment fallback
-                console.warn("Repo name not found in path. Using test path.");
+                // Preview/Local Fallback
                 segments = ["Chapter-10-Rotational-Dynamics", "06-Simulations"];
             }
 
             const currentPath = segments.join('/');
-            // Set the UI title based on the last folder name
             titleElement.innerText = segments[segments.length - 1]?.replace(/-/g, ' ') || 'Resources';
 
             // 2. Fetch from GitHub API
-            // Note: Public repos have a rate limit. If you test too many times, it might temporarily block you.
             const apiUrl = `https://api.github.com/repos/${repoOwner}/${repoName}/contents/${currentPath}`;
 
             try {
@@ -87,10 +82,7 @@
                 
                 if (!response.ok) {
                     if (response.status === 404) {
-                        throw new Error(`Directory not found: "${currentPath}". Check folder names.`);
-                    }
-                    if (response.status === 403) {
-                        throw new Error("GitHub API rate limit exceeded. Please wait a few minutes.");
+                        throw new Error(`Directory "${currentPath}" not found. Verify repo is Public.`);
                     }
                     throw new Error(`API Error ${response.status}: ${response.statusText}`);
                 }
@@ -98,9 +90,7 @@
                 const data = await response.json();
                 loader.classList.add('hidden');
 
-                if (!Array.isArray(data)) {
-                    throw new Error("Invalid response: Expected a file list.");
-                }
+                if (!Array.isArray(data)) throw new Error("API returned object instead of list.");
 
                 if (data.length === 0) {
                     errorText.innerText = "This folder is currently empty.";
@@ -108,41 +98,29 @@
                     return;
                 }
 
-                // Sort files: Folders first, then alphabetically
-                data.sort((a, b) => {
-                    if (a.type === b.type) return a.name.localeCompare(b.name);
-                    return a.type === 'dir' ? -1 : 1;
-                });
-
                 data.forEach(file => {
-                    // Filter out system files and the current script
-                    if (file.name.toLowerCase() === currentFileName.toLowerCase() || 
+                    // Hide the current index file and config
+                    if (file.name.toLowerCase() === 'index.html' || 
                         file.name === 'README.md' || 
                         file.name.startsWith('.')) return;
 
                     const card = document.createElement('a');
-                    // For HTML files, we want to VISIT them. For PDFs/Images, we might want to OPEN them.
-                    card.href = file.html_url.replace('github.com', 'mrrabeagithub.github.io').replace('/blob/main/', '/');
+                    const pagesBase = `https://${repoOwner}.github.io/${repoName}/`;
                     
-                    // Fallback to raw download link if the above logic is too complex for now
-                    if (file.name.endsWith('.html')) {
-                        // Correctly format the URL for GitHub Pages execution
-                        const pagesBase = `https://${repoOwner}.github.io/${repoName}/`;
-                        card.href = pagesBase + currentPath + '/' + file.name;
-                    } else {
-                        card.href = file.html_url;
-                    }
+                    // Direct executable link for HTML, otherwise GitHub UI link
+                    card.href = file.name.endsWith('.html') 
+                        ? pagesBase + currentPath + '/' + file.name 
+                        : file.html_url;
 
                     card.target = "_blank";
                     card.className = "glass p-6 rounded-2xl flex items-center justify-between hover:bg-white/5 transition-all group border border-white/5";
                     
-                    const nameLower = file.name.toLowerCase();
                     let iconClass = 'fa-file text-slate-400';
+                    const ext = file.name.split('.').pop().toLowerCase();
                     
-                    if (nameLower.endsWith('.html')) iconClass = 'fa-play-circle text-emerald-400';
-                    else if (nameLower.endsWith('.pdf')) iconClass = 'fa-file-pdf text-red-400';
-                    else if (nameLower.endsWith('.png') || nameLower.endsWith('.jpg') || nameLower.endsWith('.jpeg')) iconClass = 'fa-image text-blue-400';
-                    else if (nameLower.endsWith('.mp4') || nameLower.endsWith('.mov')) iconClass = 'fa-video text-purple-400';
+                    if (ext === 'html') iconClass = 'fa-play-circle text-emerald-400';
+                    else if (ext === 'pdf') iconClass = 'fa-file-pdf text-red-400';
+                    else if (['png','jpg','jpeg'].includes(ext)) iconClass = 'fa-image text-blue-400';
                     else if (file.type === 'dir') iconClass = 'fa-folder text-yellow-400';
 
                     card.innerHTML = `
@@ -150,7 +128,7 @@
                             <i class="fas ${iconClass} text-2xl"></i>
                             <div>
                                 <h4 class="font-semibold text-slate-100 group-hover:text-blue-400 transition break-all">${file.name}</h4>
-                                <p class="text-[10px] text-slate-500 uppercase tracking-widest">${file.type === 'dir' ? 'Folder' : (file.size / 1024).toFixed(1) + ' KB'}</p>
+                                <p class="text-[10px] text-slate-500 uppercase tracking-widest">${(file.size / 1024).toFixed(1)} KB</p>
                             </div>
                         </div>
                         <i class="fas fa-external-link-alt text-slate-600 text-xs group-hover:text-white transition ml-4"></i>
