@@ -3,153 +3,256 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Grade 11 Physics | Resource Portal</title>
+    <title>Resource Gallery</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
-        body { font-family: 'Inter', sans-serif; scroll-behavior: smooth; }
-        .glass { background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.1); }
-        .gradient-text { background: linear-gradient(135deg, #60a5fa, #a78bfa); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-        .card-hover { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
-        .card-hover:hover { transform: translateY(-5px); background: rgba(255, 255, 255, 0.08); box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5); }
+        body { font-family: 'Inter', sans-serif; background-color: #0f172a; color: #f1f5f9; scroll-behavior: smooth; }
+        .glass { background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.1); }
+        .card-hover { transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); }
+        .card-hover:hover { background: rgba(255, 255, 255, 0.08); transform: translateY(-3px); border-color: rgba(59, 130, 246, 0.5); box-shadow: 0 15px 30px -10px rgba(0,0,0,0.5); }
+        .search-focus:focus-within { border-color: #3b82f6; box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2); }
     </style>
 </head>
-<body class="bg-slate-900 text-slate-100 min-h-screen">
+<body class="min-h-screen p-6 md:p-12">
 
-    <!-- Header / Navigation -->
-    <nav class="p-6 border-b border-slate-800 glass sticky top-0 z-50">
-        <div class="max-w-7xl mx-auto flex justify-between items-center">
+    <div class="max-w-5xl mx-auto">
+        <!-- Navigation & Search -->
+        <div class="mb-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
+            <nav class="flex items-center space-x-2 text-[10px] font-black uppercase tracking-[0.2em] text-slate-500">
+                <a href="/" id="root-link" class="hover:text-blue-400 transition flex items-center">
+                    <i class="fas fa-home mr-2"></i> Portal
+                </a>
+                <span>/</span>
+                <span id="current-crumb" class="text-blue-500">Resources</span>
+            </nav>
+            
+            <div class="glass px-4 py-2 rounded-xl flex items-center space-x-3 search-focus transition-all md:w-64">
+                <i class="fas fa-search text-slate-500 text-sm"></i>
+                <input type="text" id="search-input" placeholder="Filter resources..." class="bg-transparent border-none outline-none text-sm text-white placeholder-slate-600 w-full">
+            </div>
+        </div>
+
+        <header class="mb-12 flex flex-col md:flex-row md:items-end justify-between gap-6">
+            <div>
+                <div class="flex items-center space-x-3 mb-2">
+                    <div class="h-2 w-2 rounded-full bg-emerald-500 animate-pulse"></div>
+                    <span class="text-[10px] font-bold text-emerald-500 uppercase tracking-widest">Live Sync Active</span>
+                </div>
+                <h1 id="folder-name" class="text-4xl md:text-5xl font-black text-white mb-3 italic tracking-tighter">Loading...</h1>
+                <p id="folder-desc" class="text-slate-400 max-w-xl text-sm leading-relaxed">
+                    Access high-fidelity mechanical simulations and resources. 
+                    All data is fetched directly from the primary repository.
+                </p>
+            </div>
             <div class="flex items-center space-x-3">
-                <div class="bg-blue-600 p-2 rounded-lg">
-                    <i class="fas fa-atom text-xl"></i>
-                </div>
-                <span class="text-xl font-bold tracking-tight uppercase">Physics <span class="gradient-text text-sm">Grade 11</span></span>
-            </div>
-            <div class="hidden md:flex space-x-8 text-sm font-semibold text-slate-400">
-                <a href="#" class="hover:text-white transition">Dashboard</a>
-                <a href="#chapters" class="hover:text-white transition">Chapters</a>
-                <a href="./Chapter-10-Rotational-Dynamics/06-Simulations/" class="hover:text-white transition">Simulations</a>
-            </div>
-        </div>
-    </nav>
-
-    <!-- Hero Section -->
-    <header class="py-20 px-6 max-w-7xl mx-auto text-center">
-        <h1 class="text-5xl md:text-7xl font-black mb-6 tracking-tight">Mechanics & <span class="gradient-text tracking-tighter">Dynamics</span></h1>
-        <p class="text-lg md:text-xl text-slate-400 max-w-2xl mx-auto mb-10 leading-relaxed">
-            A comprehensive, high-fidelity library for Grade 11 students. 
-            Bridging theoretical physics with interactive mechanical modeling.
-        </p>
-        <div class="flex flex-wrap justify-center gap-4">
-            <a href="#chapters" class="bg-blue-600 hover:bg-blue-700 px-10 py-4 rounded-full font-bold transition flex items-center shadow-lg shadow-blue-900/20">
-                Start Learning <i class="fas fa-chevron-down ml-3 text-xs"></i>
-            </a>
-            <a href="https://github.com/mrrabeagithub/Grade-11-Physics-Resources" target="_blank" class="bg-slate-800 hover:bg-slate-700 px-10 py-4 rounded-full font-bold transition border border-slate-700">
-                View Repository
-            </a>
-        </div>
-    </header>
-
-    <!-- Main Content -->
-    <main id="chapters" class="max-w-7xl mx-auto px-6 pb-32">
-        
-        <!-- Chapter 10 Section -->
-        <section id="chapter-10" class="mb-16">
-            <div class="flex items-center space-x-4 mb-10">
-                <div class="h-px bg-slate-800 flex-grow"></div>
-                <div class="flex items-center space-x-2">
-                    <span class="text-xs font-black uppercase tracking-widest text-blue-500">Module 01</span>
-                    <h2 class="text-2xl font-bold">Rotational Dynamics</h2>
-                </div>
-                <div class="h-px bg-slate-800 flex-grow"></div>
-            </div>
-
-            <div class="grid lg:grid-cols-4 gap-8">
-                <!-- Chapter Summary Card -->
-                <div class="lg:col-span-1 glass p-8 rounded-3xl flex flex-col justify-between border-l-4 border-l-blue-500">
-                    <div>
-                        <h3 class="text-2xl font-bold mb-4">Chapter 10</h3>
-                        <p class="text-slate-400 text-sm leading-relaxed mb-6">
-                            Deep dive into torque, angular momentum, and the rotational equivalents of Newton's laws.
-                        </p>
-                        <div class="space-y-4">
-                            <div class="flex items-start space-x-3 text-sm">
-                                <i class="fas fa-check text-blue-500 mt-1"></i>
-                                <span>Moment of Inertia & Parallel Axis</span>
-                            </div>
-                            <div class="flex items-start space-x-3 text-sm">
-                                <i class="fas fa-check text-blue-500 mt-1"></i>
-                                <span>Newton's 2nd Law for Rotation</span>
-                            </div>
-                            <div class="flex items-start space-x-3 text-sm">
-                                <i class="fas fa-check text-blue-500 mt-1"></i>
-                                <span>Conservation of Angular Momentum</span>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="mt-8 pt-6 border-t border-slate-800">
-                        <p class="text-[10px] text-slate-500 uppercase tracking-[0.2em] font-bold">Facilitator</p>
-                        <p class="text-sm font-semibold">Rabih A.G.</p>
-                    </div>
-                </div>
-
-                <!-- Resource Tiles -->
-                <div class="lg:col-span-3 grid grid-cols-2 md:grid-cols-3 gap-4">
-                    <a href="./Chapter-10-Rotational-Dynamics/01-Summaries/" class="glass p-6 rounded-2xl card-hover flex flex-col items-center justify-center text-center">
-                        <i class="fas fa-file-invoice text-3xl text-blue-400 mb-4"></i>
-                        <span class="font-bold text-sm">Summaries</span>
-                    </a>
-                    <a href="./Chapter-10-Rotational-Dynamics/02-StudyGuides/" class="glass p-6 rounded-2xl card-hover flex flex-col items-center justify-center text-center">
-                        <i class="fas fa-scroll text-3xl text-purple-400 mb-4"></i>
-                        <span class="font-bold text-sm">Study Guides</span>
-                    </a>
-                    <a href="./Chapter-10-Rotational-Dynamics/03-Infographics/" class="glass p-6 rounded-2xl card-hover flex flex-col items-center justify-center text-center">
-                        <i class="fas fa-draw-polygon text-3xl text-pink-400 mb-4"></i>
-                        <span class="font-bold text-sm">Visuals</span>
-                    </a>
-                    <a href="./Chapter-10-Rotational-Dynamics/04-Worksheets/" class="glass p-6 rounded-2xl card-hover flex flex-col items-center justify-center text-center text-slate-400">
-                        <i class="fas fa-tasks text-3xl mb-4"></i>
-                        <span class="font-bold text-sm">Practice Sets</span>
-                    </a>
-                    <a href="./Chapter-10-Rotational-Dynamics/05-SmartSheets/" class="glass p-6 rounded-2xl card-hover flex flex-col items-center justify-center text-center border-b-2 border-b-blue-500/50">
-                        <i class="fas fa-microchip text-3xl text-blue-400 mb-4"></i>
-                        <span class="font-bold text-sm text-blue-100 uppercase tracking-tighter">SmartSheets</span>
-                    </a>
-                    
-                    <!-- 🛠️ UPDATE: Replace 'your_sim_file.html' with the actual filename from your laptop -->
-                    <a href="./Chapter-10-Rotational-Dynamics/06-Simulations/Rotational_Dynamics_Simulator (4).html" class="glass p-6 rounded-2xl card-hover flex flex-col items-center justify-center text-center border-b-2 border-b-emerald-500/50 group">
-                        <i class="fas fa-play text-3xl text-emerald-400 mb-4 group-hover:scale-110 transition"></i>
-                        <span class="font-bold text-sm text-emerald-100 uppercase tracking-tighter">Live Sims</span>
-                    </a>
-                </div>
-            </div>
-        </section>
-
-        <!-- General Simulation Portal -->
-        <div class="mt-20 glass p-10 rounded-[2.5rem] relative overflow-hidden bg-gradient-to-br from-slate-800/20 to-transparent border border-slate-700">
-            <div class="relative z-10 flex flex-col md:flex-row items-center justify-between text-center md:text-left">
-                <div>
-                    <h3 class="text-3xl font-black mb-2">Mechanical Simulation Engine</h3>
-                    <p class="text-slate-400 max-w-md">Access the full catalog of high-precision models used throughout the Grade 11 curriculum.</p>
-                </div>
-                <a href="./Chapter-10-Rotational-Dynamics/06-Simulations/" class="mt-8 md:mt-0 bg-white text-slate-900 px-12 py-4 rounded-full font-black hover:bg-blue-50 transition-all hover:px-14">
-                    Explore Sim Library
+                <button onclick="loadResources(true)" class="p-3 glass rounded-xl hover:bg-white/10 transition group" title="Force Refresh">
+                    <i class="fas fa-sync-alt text-slate-400 group-active:rotate-180 transition-transform duration-500"></i>
+                </button>
+                <a href="https://github.com/mrrabeagithub/Grade-11-Physics-Resources" target="_blank" class="glass px-6 py-3 rounded-xl text-xs font-black uppercase tracking-widest hover:bg-white/10 transition flex items-center border-white/5">
+                    <i class="fab fa-github mr-2 text-base"></i> Source
                 </a>
             </div>
-            <div class="absolute -right-20 -bottom-20 w-80 h-80 bg-blue-600/10 blur-[120px] rounded-full"></div>
-        </div>
-    </main>
+        </header>
 
-    <footer class="py-12 px-6 border-t border-slate-800/50 text-center">
-        <div class="flex justify-center space-x-6 mb-6 text-slate-500">
-            <i class="fas fa-shield-alt hover:text-white cursor-pointer"></i>
-            <i class="fas fa-code hover:text-white cursor-pointer"></i>
-            <i class="fas fa-envelope hover:text-white cursor-pointer"></i>
+        <!-- Dynamic Grid -->
+        <div id="file-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <!-- Items injected here -->
         </div>
-        <p class="text-slate-500 text-xs font-bold tracking-widest uppercase mb-2">Developed for Grade 11 Physics</p>
-        <p class="text-slate-600 text-[10px] uppercase tracking-tighter">&copy; 2026 Rabih A.G. | Mechanical Insights & Smart Systems</p>
-    </footer>
 
+        <!-- Empty State (Hidden by default) -->
+        <div id="empty-state" class="hidden text-center py-24 glass rounded-3xl border-dashed border-slate-700">
+            <i class="fas fa-box-open text-4xl text-slate-700 mb-4"></i>
+            <h3 class="text-xl font-bold text-slate-500">No resources found</h3>
+            <p class="text-slate-600 text-sm">Check back later or try a different filter.</p>
+        </div>
+
+        <!-- States -->
+        <div id="loader" class="text-center py-24">
+            <i class="fas fa-atom fa-spin text-5xl text-blue-600"></i>
+            <p class="text-xs text-slate-500 mt-4 font-bold uppercase tracking-widest">Querying GitHub API...</p>
+        </div>
+
+        <div id="error-message" class="hidden glass p-10 rounded-3xl border-red-500/20 text-center">
+            <div class="bg-red-500/10 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-6">
+                <i class="fas fa-exclamation-triangle text-red-500 text-2xl"></i>
+            </div>
+            <h3 class="text-xl font-bold text-white mb-2">Synchronization Interrupted</h3>
+            <p id="error-text" class="text-slate-400 mb-6 text-sm"></p>
+            <div class="text-[10px] text-slate-500 bg-slate-900/50 p-6 rounded-2xl inline-block text-left border border-white/5">
+                <p class="font-bold mb-2 text-slate-400">TROUBLESHOOTING:</p>
+                <ul class="list-disc ml-4 space-y-1">
+                    <li>Confirm the repository visibility is <strong>Public</strong>.</li>
+                    <li>Ensure folder name <code>Chapter-10-Rotational-Dynamics</code> exists.</li>
+                    <li>Check your internet connection or API rate limits.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        /**
+         * UNIVERSAL CONFIGURATION
+         */
+        const repoOwner = "mrrabeagithub";
+        const repoName = "Grade-11-Physics-Resources";
+        let allItems = []; // Global storage for filtering
+        
+        async function loadResources(force = false) {
+            const grid = document.getElementById('file-grid');
+            const loader = document.getElementById('loader');
+            const errorContainer = document.getElementById('error-message');
+            const errorText = document.getElementById('error-text');
+            const titleElement = document.getElementById('folder-name');
+            const rootLink = document.getElementById('root-link');
+            const crumb = document.getElementById('current-crumb');
+
+            // Reset UI
+            grid.innerHTML = '';
+            loader.classList.remove('hidden');
+            errorContainer.classList.add('hidden');
+
+            // 1. Determine depth and path
+            const pathSegments = window.location.pathname.split('/').filter(s => s && s !== 'index.html');
+            const repoIndex = pathSegments.indexOf(repoName);
+            
+            let segments = [];
+            if (repoIndex !== -1) {
+                segments = pathSegments.slice(repoIndex + 1);
+            } else {
+                // Testing/Preview Fallback
+                segments = ["Chapter-10-Rotational-Dynamics", "06-Simulations"];
+            }
+
+            // Adjust root link based on depth to find main index.html
+            const depth = segments.length;
+            rootLink.href = depth > 0 ? "../".repeat(depth) + "index.html" : "index.html";
+
+            const currentPath = segments.join('/');
+            const currentFolderName = segments[segments.length - 1] || 'Physics Library';
+            titleElement.innerText = currentFolderName.replace(/-/g, ' ');
+            crumb.innerText = currentFolderName.replace(/-/g, ' ');
+
+            // 2. Fetch from GitHub API with cache-busting
+            // Adding a timestamp ensures we get the absolute latest file list
+            const cacheBuster = force ? `&t=${Date.now()}` : '';
+            const apiUrl = `https://api.github.com/repos/${repoOwner}/${repoName}/contents/${currentPath}?ref=main${cacheBuster}`;
+
+            try {
+                const response = await fetch(apiUrl);
+                
+                if (!response.ok) {
+                    if (response.status === 404) throw new Error(`Path "${currentPath}" not found. Verify repository structure.`);
+                    if (response.status === 403) throw new Error("API rate limit exceeded. Please wait a moment.");
+                    throw new Error(`Connection Error: ${response.statusText}`);
+                }
+
+                allItems = await response.json();
+                loader.classList.add('hidden');
+                renderItems(allItems);
+
+            } catch (error) {
+                console.error("Gallery Sync Error:", error);
+                loader.classList.add('hidden');
+                errorText.innerText = error.message;
+                errorContainer.classList.remove('hidden');
+            }
+        }
+
+        function renderItems(items) {
+            const grid = document.getElementById('file-grid');
+            const emptyState = document.getElementById('empty-state');
+            grid.innerHTML = '';
+
+            // Filter out system files
+            const visibleItems = items.filter(item => {
+                const name = item.name.toLowerCase();
+                return !(name === 'index.html' || name === 'readme.md' || name.startsWith('.'));
+            });
+
+            if (visibleItems.length === 0) {
+                emptyState.classList.remove('hidden');
+                return;
+            } else {
+                emptyState.classList.add('hidden');
+            }
+
+            // Sort: Directories first, then alphabetically
+            visibleItems.sort((a, b) => {
+                if (a.type === b.type) return a.name.localeCompare(b.name);
+                return a.type === 'dir' ? -1 : 1;
+            });
+
+            visibleItems.forEach(item => {
+                const card = document.createElement('a');
+                const ext = item.name.split('.').pop().toLowerCase();
+                
+                // Logic for Link Handling
+                if (item.type === 'dir') {
+                    card.href = `./${item.name}/index.html`;
+                } else if (ext === 'html') {
+                    // Direct executable Pages link
+                    const pathSegments = window.location.pathname.split('/').filter(s => s && s !== 'index.html');
+                    const repoIndex = pathSegments.indexOf(repoName);
+                    const segments = repoIndex !== -1 ? pathSegments.slice(repoIndex + 1) : ["Chapter-10-Rotational-Dynamics", "06-Simulations"];
+                    const currentPath = segments.join('/');
+                    card.href = `https://${repoOwner}.github.io/${repoName}/${currentPath}/${item.name}`;
+                } else {
+                    card.href = item.html_url;
+                }
+
+                card.target = "_blank";
+                card.className = "glass p-6 rounded-2xl flex flex-col justify-between card-hover border border-white/5 group";
+                
+                let icon = 'fa-file text-slate-500';
+                let typeLabel = 'Resource';
+                let accentColor = 'group-hover:text-blue-400';
+
+                if (item.type === 'dir') {
+                    icon = 'fa-folder text-amber-500';
+                    typeLabel = 'Sub-Directory';
+                } else if (ext === 'html') {
+                    icon = 'fa-play-circle text-emerald-400';
+                    typeLabel = 'Interactive Model';
+                    accentColor = 'group-hover:text-emerald-400';
+                } else if (ext === 'pdf') {
+                    icon = 'fa-file-pdf text-rose-400';
+                    typeLabel = 'Document';
+                    accentColor = 'group-hover:text-rose-400';
+                } else if (['png', 'jpg', 'jpeg', 'svg'].includes(ext)) {
+                    icon = 'fa-image text-sky-400';
+                    typeLabel = 'Visual Asset';
+                }
+
+                card.innerHTML = `
+                    <div>
+                        <div class="flex justify-between items-start mb-4">
+                            <i class="fas ${icon} text-2xl"></i>
+                            <i class="fas fa-external-link-alt text-[9px] text-slate-600 group-hover:text-white transition"></i>
+                        </div>
+                        <h4 class="font-bold text-slate-100 ${accentColor} transition line-clamp-2 mb-1 text-sm tracking-tight">${item.name.replace(/-/g, ' ')}</h4>
+                        <p class="text-[9px] text-slate-500 uppercase tracking-widest font-black">${typeLabel}</p>
+                    </div>
+                    <div class="mt-5 pt-4 border-t border-white/5 flex justify-between items-center">
+                        <span class="text-[9px] text-slate-600 font-medium">${item.type === 'dir' ? 'Folder' : (item.size / 1024).toFixed(1) + ' KB'}</span>
+                        <span class="text-[9px] opacity-0 group-hover:opacity-100 transition duration-300 text-blue-400 font-black uppercase tracking-tighter">View Source</span>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        // Search Filter Logic
+        document.getElementById('search-input').addEventListener('input', (e) => {
+            const term = e.target.value.toLowerCase();
+            const filtered = term === '' 
+                ? allItems 
+                : allItems.filter(item => item.name.toLowerCase().includes(term));
+            renderItems(filtered);
+        });
+
+        window.addEventListener('DOMContentLoaded', () => loadResources());
+    </script>
 </body>
 </html>
