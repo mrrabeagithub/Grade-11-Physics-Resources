@@ -60,7 +60,7 @@ YouTube links and Video demos.
 
 Watch Media
 
-🚀 Featured Simulation: [Rotational_Dynamics_Simulator (4)]
+🚀 Featured Simulation: [Rotational_Dynamics_Simulator (4).html]
 
 Click the link below to launch the simulation directly in your browser:
 
