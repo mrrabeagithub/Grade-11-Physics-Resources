@@ -135,7 +135,6 @@
             crumb.innerText = currentFolderName.replace(/-/g, ' ');
 
             // 2. Fetch from GitHub API with cache-busting
-            // Adding a timestamp ensures we get the absolute latest file list
             const cacheBuster = force ? `&t=${Date.now()}` : '';
             const apiUrl = `https://api.github.com/repos/${repoOwner}/${repoName}/contents/${currentPath}?ref=main${cacheBuster}`;
 
@@ -192,7 +191,6 @@
                 if (item.type === 'dir') {
                     card.href = `./${item.name}/index.html`;
                 } else if (ext === 'html') {
-                    // Direct executable Pages link
                     const pathSegments = window.location.pathname.split('/').filter(s => s && s !== 'index.html');
                     const repoIndex = pathSegments.indexOf(repoName);
                     const segments = repoIndex !== -1 ? pathSegments.slice(repoIndex + 1) : ["Chapter-10-Rotational-Dynamics", "06-Simulations"];
@@ -205,24 +203,35 @@
                 card.target = "_blank";
                 card.className = "glass p-6 rounded-2xl flex flex-col justify-between card-hover border border-white/5 group";
                 
+                // --- CUSTOM ICON & LABEL LOGIC ---
                 let icon = 'fa-file text-slate-500';
                 let typeLabel = 'Resource';
                 let accentColor = 'group-hover:text-blue-400';
 
+                // Determine context from folder name if available
+                const parentFolder = window.location.pathname.toLowerCase();
+
                 if (item.type === 'dir') {
                     icon = 'fa-folder text-amber-500';
                     typeLabel = 'Sub-Directory';
+                    if (item.name.includes('Summaries')) icon = 'fa-file-invoice text-blue-400';
+                    if (item.name.includes('Guides')) icon = 'fa-scroll text-purple-400';
+                    if (item.name.includes('Worksheets')) icon = 'fa-tasks text-orange-400';
                 } else if (ext === 'html') {
                     icon = 'fa-play-circle text-emerald-400';
                     typeLabel = 'Interactive Model';
                     accentColor = 'group-hover:text-emerald-400';
                 } else if (ext === 'pdf') {
                     icon = 'fa-file-pdf text-rose-400';
-                    typeLabel = 'Document';
-                    accentColor = 'group-hover:text-rose-400';
+                    typeLabel = 'PDF Document';
+                    if (parentFolder.includes('summaries')) icon = 'fa-file-alt text-blue-400';
+                    if (parentFolder.includes('worksheets')) icon = 'fa-pen-nib text-orange-400';
                 } else if (['png', 'jpg', 'jpeg', 'svg'].includes(ext)) {
                     icon = 'fa-image text-sky-400';
                     typeLabel = 'Visual Asset';
+                } else if (['mp4', 'mov', 'avi'].includes(ext)) {
+                    icon = 'fa-video text-rose-500';
+                    typeLabel = 'Video Media';
                 }
 
                 card.innerHTML = `
@@ -236,7 +245,7 @@
                     </div>
                     <div class="mt-5 pt-4 border-t border-white/5 flex justify-between items-center">
                         <span class="text-[9px] text-slate-600 font-medium">${item.type === 'dir' ? 'Folder' : (item.size / 1024).toFixed(1) + ' KB'}</span>
-                        <span class="text-[9px] opacity-0 group-hover:opacity-100 transition duration-300 text-blue-400 font-black uppercase tracking-tighter">View Source</span>
+                        <span class="text-[9px] opacity-0 group-hover:opacity-100 transition duration-300 text-blue-400 font-black uppercase tracking-tighter">View Resource</span>
                     </div>
                 `;
                 grid.appendChild(card);
