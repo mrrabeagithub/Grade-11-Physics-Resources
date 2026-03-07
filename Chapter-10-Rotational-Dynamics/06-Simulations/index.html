@@ -8,71 +8,98 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
-        body { font-family: 'Inter', sans-serif; background-color: #0f172a; color: #f1f5f9; }
-        .glass { background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.1); }
+        body { font-family: 'Inter', sans-serif; background-color: #0f172a; color: #f1f5f9; scroll-behavior: smooth; }
+        .glass { background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.1); }
+        .card-hover { transition: all 0.2s ease-in-out; }
+        .card-hover:hover { background: rgba(255, 255, 255, 0.08); transform: translateY(-2px); border-color: rgba(59, 130, 246, 0.5); }
     </style>
 </head>
-<body class="min-h-screen p-8">
+<body class="min-h-screen p-6 md:p-12">
 
-    <div class="max-w-4xl mx-auto">
-        <header class="mb-12 flex justify-between items-center">
+    <div class="max-w-5xl mx-auto">
+        <!-- Breadcrumb / Navigation -->
+        <nav class="mb-8 flex items-center space-x-2 text-xs font-semibold uppercase tracking-widest text-slate-500">
+            <a href="/" id="root-link" class="hover:text-blue-400 transition">Portal</a>
+            <span id="breadcrumb-separator" class="hidden">/</span>
+            <span id="parent-folder" class="hidden"></span>
+        </nav>
+
+        <header class="mb-12 flex flex-col md:flex-row md:items-end justify-between gap-6">
             <div>
-                <h1 id="folder-name" class="text-3xl font-bold text-white mb-2 italic tracking-tight">Loading Gallery...</h1>
-                <p class="text-slate-400">Automated resource directory for Grade 11 Physics</p>
+                <h1 id="folder-name" class="text-4xl font-black text-white mb-3 italic tracking-tighter">Loading...</h1>
+                <p id="folder-desc" class="text-slate-400 max-w-xl">Automated resource directory. Synchronized with the Grade 11 Physics repository.</p>
             </div>
-            <a href="../../index.html" class="bg-slate-800 hover:bg-slate-700 px-5 py-2 rounded-lg text-sm font-semibold transition">
-                <i class="fas fa-arrow-left mr-2 text-xs"></i> Back to Portal
-            </a>
+            <div class="flex items-center space-x-3">
+                <button onclick="window.location.reload()" class="p-3 glass rounded-xl hover:bg-white/10 transition" title="Refresh list">
+                    <i class="fas fa-sync-alt text-slate-400"></i>
+                </button>
+                <a href="https://github.com/mrrabeagithub/Grade-11-Physics-Resources" target="_blank" class="glass px-6 py-3 rounded-xl text-sm font-bold hover:bg-white/10 transition flex items-center">
+                    <i class="fab fa-github mr-2"></i> Source
+                </a>
+            </div>
         </header>
 
-        <div id="file-grid" class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <!-- Files injected here -->
+        <!-- Dynamic Grid -->
+        <div id="file-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <!-- Items injected here -->
         </div>
 
-        <div id="loader" class="text-center py-20">
-            <i class="fas fa-circle-notch fa-spin text-4xl text-blue-500"></i>
+        <!-- States -->
+        <div id="loader" class="text-center py-24">
+            <i class="fas fa-circle-notch fa-spin text-5xl text-blue-600"></i>
         </div>
 
-        <div id="error-message" class="hidden glass p-6 rounded-2xl border-red-500/30 text-center">
-            <i class="fas fa-exclamation-triangle text-red-400 text-3xl mb-4"></i>
-            <p id="error-text" class="text-red-200 font-medium"></p>
-            <p class="text-slate-500 text-xs mt-2">Check: 1. Repo is Public? 2. Repo name in script is correct?</p>
+        <div id="error-message" class="hidden glass p-10 rounded-3xl border-red-500/20 text-center">
+            <div class="bg-red-500/10 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-6">
+                <i class="fas fa-exclamation-triangle text-red-500 text-2xl"></i>
+            </div>
+            <h3 class="text-xl font-bold text-white mb-2">Access Issue Detected</h3>
+            <p id="error-text" class="text-slate-400 mb-6"></p>
+            <div class="text-xs text-slate-500 bg-slate-900/50 p-4 rounded-lg inline-block text-left">
+                <p>Possible fixes:</p>
+                <ul class="list-disc ml-4 mt-1 space-y-1">
+                    <li>Verify the Repository is set to <strong>Public</strong>.</li>
+                    <li>Check for typos in folder names on GitHub.</li>
+                    <li>Wait 60 seconds (GitHub API Rate Limiting).</li>
+                </ul>
+            </div>
         </div>
     </div>
 
     <script>
         /**
-         * CONFIGURATION
-         * Ensure these match your GitHub repository exactly.
+         * UNIVERSAL CONFIGURATION
          */
         const repoOwner = "mrrabeagithub";
         const repoName = "Grade-11-Physics-Resources";
         
-        async function loadFiles() {
+        async function loadResources() {
             const grid = document.getElementById('file-grid');
             const loader = document.getElementById('loader');
             const errorContainer = document.getElementById('error-message');
             const errorText = document.getElementById('error-text');
             const titleElement = document.getElementById('folder-name');
+            const rootLink = document.getElementById('root-link');
 
-            // 1. Determine the path from the URL
-            const fullPath = window.location.pathname;
-            const pathSegments = fullPath.split('/').filter(s => s && s !== 'index.html');
-
-            // Find repo index to extract subfolder path
+            // 1. Determine depth and path
+            const pathSegments = window.location.pathname.split('/').filter(s => s && s !== 'index.html');
             const repoIndex = pathSegments.indexOf(repoName);
-            let segments = [];
             
+            let segments = [];
             if (repoIndex !== -1) {
-                // We are on the web: mrrabeagithub.github.io/Grade-11-Physics-Resources/folder1/folder2
                 segments = pathSegments.slice(repoIndex + 1);
             } else {
-                // Preview/Local Fallback
+                // Testing/Preview Fallback
                 segments = ["Chapter-10-Rotational-Dynamics", "06-Simulations"];
             }
 
+            // Adjust root link based on depth
+            const depth = segments.length;
+            rootLink.href = "../".repeat(depth) + "index.html";
+
             const currentPath = segments.join('/');
-            titleElement.innerText = segments[segments.length - 1]?.replace(/-/g, ' ') || 'Resources';
+            const currentFolderName = segments[segments.length - 1] || 'Library';
+            titleElement.innerText = currentFolderName.replace(/-/g, ' ');
 
             // 2. Fetch from GitHub API
             const apiUrl = `https://api.github.com/repos/${repoOwner}/${repoName}/contents/${currentPath}`;
@@ -81,70 +108,94 @@
                 const response = await fetch(apiUrl);
                 
                 if (!response.ok) {
-                    if (response.status === 404) {
-                        throw new Error(`Directory "${currentPath}" not found. Verify repo is Public.`);
-                    }
-                    throw new Error(`API Error ${response.status}: ${response.statusText}`);
+                    if (response.status === 404) throw new Error(`Directory "${currentPath}" not found. Verify repository is Public.`);
+                    if (response.status === 403) throw new Error("API Limit reached. Wait 60 seconds.");
+                    throw new Error(`Connection Error (${response.status})`);
                 }
 
                 const data = await response.json();
                 loader.classList.add('hidden');
 
-                if (!Array.isArray(data)) throw new Error("API returned object instead of list.");
-
                 if (data.length === 0) {
-                    errorText.innerText = "This folder is currently empty.";
+                    errorText.innerText = "This directory is currently empty.";
                     errorContainer.classList.remove('hidden');
                     return;
                 }
 
-                data.forEach(file => {
-                    // Hide the current index file and config
-                    if (file.name.toLowerCase() === 'index.html' || 
-                        file.name === 'README.md' || 
-                        file.name.startsWith('.')) return;
+                // Sort: Directories first, then alphabetically
+                data.sort((a, b) => {
+                    if (a.type === b.type) return a.name.localeCompare(b.name);
+                    return a.type === 'dir' ? -1 : 1;
+                });
+
+                data.forEach(item => {
+                    // Filter: Hide index and system files
+                    const name = item.name.toLowerCase();
+                    if (name === 'index.html' || name === 'readme.md' || name.startsWith('.')) return;
 
                     const card = document.createElement('a');
-                    const pagesBase = `https://${repoOwner}.github.io/${repoName}/`;
+                    const ext = item.name.split('.').pop().toLowerCase();
                     
-                    // Direct executable link for HTML, otherwise GitHub UI link
-                    card.href = file.name.endsWith('.html') 
-                        ? pagesBase + currentPath + '/' + file.name 
-                        : file.html_url;
+                    // Logic for Link Handling
+                    if (item.type === 'dir') {
+                        // Link to the folder's index
+                        card.href = `./${item.name}/index.html`;
+                    } else if (ext === 'html') {
+                        // Direct Pages execution for Simulations/SmartSheets
+                        card.href = `https://${repoOwner}.github.io/${repoName}/${currentPath}/${item.name}`;
+                    } else {
+                        // Standard GitHub viewer for PDFs/Images
+                        card.href = item.html_url;
+                    }
 
                     card.target = "_blank";
-                    card.className = "glass p-6 rounded-2xl flex items-center justify-between hover:bg-white/5 transition-all group border border-white/5";
+                    card.className = "glass p-6 rounded-2xl flex flex-col justify-between card-hover border border-white/5 group";
                     
-                    let iconClass = 'fa-file text-slate-400';
-                    const ext = file.name.split('.').pop().toLowerCase();
-                    
-                    if (ext === 'html') iconClass = 'fa-play-circle text-emerald-400';
-                    else if (ext === 'pdf') iconClass = 'fa-file-pdf text-red-400';
-                    else if (['png','jpg','jpeg'].includes(ext)) iconClass = 'fa-image text-blue-400';
-                    else if (file.type === 'dir') iconClass = 'fa-folder text-yellow-400';
+                    let icon = 'fa-file text-slate-500';
+                    let typeLabel = 'File';
+                    let accentColor = 'group-hover:text-blue-400';
+
+                    if (item.type === 'dir') {
+                        icon = 'fa-folder text-yellow-500';
+                        typeLabel = 'Sub-Directory';
+                    } else if (ext === 'html') {
+                        icon = 'fa-play-circle text-emerald-400';
+                        typeLabel = 'Interactive / Sim';
+                        accentColor = 'group-hover:text-emerald-400';
+                    } else if (ext === 'pdf') {
+                        icon = 'fa-file-pdf text-red-400';
+                        typeLabel = 'Document';
+                    } else if (['png', 'jpg', 'jpeg'].includes(ext)) {
+                        icon = 'fa-image text-blue-400';
+                        typeLabel = 'Asset';
+                    }
 
                     card.innerHTML = `
-                        <div class="flex items-center space-x-4">
-                            <i class="fas ${iconClass} text-2xl"></i>
-                            <div>
-                                <h4 class="font-semibold text-slate-100 group-hover:text-blue-400 transition break-all">${file.name}</h4>
-                                <p class="text-[10px] text-slate-500 uppercase tracking-widest">${(file.size / 1024).toFixed(1)} KB</p>
+                        <div>
+                            <div class="flex justify-between items-start mb-4">
+                                <i class="fas ${icon} text-2xl"></i>
+                                <i class="fas fa-external-link-alt text-[10px] text-slate-600 group-hover:text-white transition"></i>
                             </div>
+                            <h4 class="font-bold text-slate-100 ${accentColor} transition line-clamp-2 mb-1">${item.name.replace(/-/g, ' ')}</h4>
+                            <p class="text-[10px] text-slate-500 uppercase tracking-widest font-bold">${typeLabel}</p>
                         </div>
-                        <i class="fas fa-external-link-alt text-slate-600 text-xs group-hover:text-white transition ml-4"></i>
+                        <div class="mt-4 pt-4 border-t border-white/5 flex justify-between items-center">
+                            <span class="text-[9px] text-slate-600">${item.type === 'dir' ? '--' : (item.size / 1024).toFixed(1) + ' KB'}</span>
+                            <span class="text-[9px] opacity-0 group-hover:opacity-100 transition text-blue-400 font-bold uppercase tracking-tighter">Open Resource</span>
+                        </div>
                     `;
                     grid.appendChild(card);
                 });
 
             } catch (error) {
-                console.error("Fetch Error:", error);
+                console.error("Gallery Error:", error);
                 loader.classList.add('hidden');
                 errorText.innerText = error.message;
                 errorContainer.classList.remove('hidden');
             }
         }
 
-        window.addEventListener('DOMContentLoaded', loadFiles);
+        window.addEventListener('DOMContentLoaded', loadResources);
     </script>
 </body>
 </html>
