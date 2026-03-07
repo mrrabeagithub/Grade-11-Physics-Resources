@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Grade 11 Physics | Resource Portal</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+        .glass { background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.1); }
+        .gradient-text { background: linear-gradient(135deg, #60a5fa, #a78bfa); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .card-hover:hover { transform: translateY(-5px); transition: all 0.3s ease; box-shadow: 0 10px 20px -5px rgba(0, 0, 0, 0.3); }
+    </style>
+</head>
+<body class="bg-slate-900 text-slate-100 min-h-screen">
+
+    <!-- Navigation -->
+    <nav class="p-6 border-b border-slate-800 glass sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto flex justify-between items-center">
+            <div class="flex items-center space-x-3">
+                <div class="bg-blue-600 p-2 rounded-lg">
+                    <i class="fas fa-atom text-xl"></i>
+                </div>
+                <span class="text-xl font-bold tracking-tight">Grade 11 <span class="gradient-text">Physics</span></span>
+            </div>
+            <div class="hidden md:flex space-x-8 text-sm font-medium text-slate-400">
+                <a href="#" class="hover:text-white transition">Dashboard</a>
+                <a href="#chapters" class="hover:text-white transition">Chapters</a>
+                <a href="#" class="hover:text-white transition">Simulations</a>
+                <a href="#" class="hover:text-white transition">About</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <header class="py-16 px-6 max-w-7xl mx-auto text-center">
+        <h1 class="text-4xl md:text-6xl font-extrabold mb-6">Master the Mechanics of <span class="gradient-text">Rotation</span></h1>
+        <p class="text-lg text-slate-400 max-w-2xl mx-auto mb-10">
+            A specialized resource library for Grade 11 students, featuring high-fidelity numerical simulations, 
+            interactive smart-sheets, and comprehensive mechanical derivations.
+        </p>
+        <div class="flex flex-wrap justify-center gap-4">
+            <a href="#chapter-10" class="bg-blue-600 hover:bg-blue-700 px-8 py-3 rounded-full font-semibold transition flex items-center">
+                Get Started <i class="fas fa-arrow-right ml-2"></i>
+            </a>
+            <a href="https://github.com/YOUR_USERNAME/Grade-11-Physics-Resources" class="bg-slate-800 hover:bg-slate-700 px-8 py-3 rounded-full font-semibold transition border border-slate-700">
+                View Repository
+            </a>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto px-6 pb-24">
+        
+        <!-- Active Chapter Card -->
+        <section id="chapter-10" class="mb-16">
+            <div class="flex items-center space-x-3 mb-8">
+                <h2 class="text-2xl font-bold">Current Module</h2>
+                <span class="bg-emerald-500/10 text-emerald-400 text-xs font-bold px-2 py-1 rounded uppercase tracking-wider border border-emerald-500/20 underline">Chapter 10</span>
+            </div>
+
+            <div class="grid md:grid-cols-3 gap-8">
+                <!-- Left: Info -->
+                <div class="md:col-span-1 glass p-8 rounded-2xl flex flex-col justify-between">
+                    <div>
+                        <h3 class="text-3xl font-bold mb-4">Rotational Dynamics</h3>
+                        <p class="text-slate-400 mb-6 leading-relaxed">
+                            Exploring the laws governing torque, angular momentum, and the rotational analogs of Newton's Laws. 
+                            Built for students bridging theoretical physics and high-precision modeling.
+                        </p>
+                        <ul class="space-y-3 text-sm text-slate-300">
+                            <li class="flex items-center"><i class="fas fa-check-circle text-blue-500 mr-2"></i> Moment of Inertia (I)</li>
+                            <li class="flex items-center"><i class="fas fa-check-circle text-blue-500 mr-2"></i> Parallel Axis Theorem</li>
+                            <li class="flex items-center"><i class="fas fa-check-circle text-blue-500 mr-2"></i> Conservation of L</li>
+                            <li class="flex items-center"><i class="fas fa-check-circle text-blue-500 mr-2"></i> Rolling without Slipping</li>
+                        </ul>
+                    </div>
+                    <div class="mt-8 pt-8 border-t border-slate-800">
+                        <p class="text-xs text-slate-500 uppercase tracking-widest font-bold mb-2">Lead Facilitator</p>
+                        <p class="font-semibold">Rabih A.G.</p>
+                    </div>
+                </div>
+
+                <!-- Right: Resource Grid -->
+                <div class="md:col-span-2 grid grid-cols-2 lg:grid-cols-3 gap-4">
+                    <a href="./Chapter-10-Rotational-Dynamics/01-Summaries/" class="glass p-6 rounded-xl card-hover flex flex-col items-center text-center">
+                        <i class="fas fa-file-alt text-2xl text-blue-400 mb-3"></i>
+                        <span class="font-semibold">Summaries</span>
+                    </a>
+                    <a href="./Chapter-10-Rotational-Dynamics/02-StudyGuides/" class="glass p-6 rounded-xl card-hover flex flex-col items-center text-center">
+                        <i class="fas fa-book text-2xl text-purple-400 mb-3"></i>
+                        <span class="font-semibold">Study Guides</span>
+                    </a>
+                    <a href="./Chapter-10-Rotational-Dynamics/03-Infographics/" class="glass p-6 rounded-xl card-hover flex flex-col items-center text-center">
+                        <i class="fas fa-chart-pie text-2xl text-pink-400 mb-3"></i>
+                        <span class="font-semibold">Visuals</span>
+                    </a>
+                    <a href="./Chapter-10-Rotational-Dynamics/04-Worksheets/" class="glass p-6 rounded-xl card-hover flex flex-col items-center text-center">
+                        <i class="fas fa-pen-nib text-2xl text-orange-400 mb-3"></i>
+                        <span class="font-semibold">Practice</span>
+                    </a>
+                    <a href="./Chapter-10-Rotational-Dynamics/05-SmartSheets/" class="glass p-6 rounded-xl card-hover flex flex-col items-center text-center border border-blue-500/30">
+                        <i class="fas fa-calculator text-2xl text-blue-400 mb-3"></i>
+                        <span class="font-semibold text-blue-400">SmartSheets</span>
+                    </a>
+                    <a href="./Chapter-10-Rotational-Dynamics/06-Simulations/" class="glass p-6 rounded-xl card-hover flex flex-col items-center text-center border border-emerald-500/30">
+                        <i class="fas fa-play-circle text-2xl text-emerald-400 mb-3"></i>
+                        <span class="font-semibold text-emerald-400">Live Sims</span>
+                    </a>
+                </div>
+            </div>
+        </section>
+
+        <!-- Featured Resource / Call to Action -->
+        <div class="glass p-12 rounded-3xl relative overflow-hidden">
+            <div class="relative z-10 flex flex-col md:flex-row items-center justify-between">
+                <div class="text-center md:text-left mb-8 md:mb-0">
+                    <h3 class="text-2xl font-bold mb-2">Numerical Simulation Engine</h3>
+                    <p class="text-slate-400">Access the full library of high-precision mechanics models.</p>
+                </div>
+                <button onclick="alert('Simulation Portal Opening...')" class="bg-white text-slate-900 px-10 py-4 rounded-full font-bold hover:bg-blue-50 transition">
+                    Explore Sim Library
+                </button>
+            </div>
+            <div class="absolute -right-20 -bottom-20 w-64 h-64 bg-blue-600/20 blur-[100px]"></div>
+        </div>
+    </main>
+
+    <footer class="py-12 px-6 border-t border-slate-800 text-center text-slate-500 text-sm">
+        <p>&copy; 2026 Grade 11 Physics Repository | Developed for Mechanical Insight</p>
+    </footer>
+
+</body>
+</html>
