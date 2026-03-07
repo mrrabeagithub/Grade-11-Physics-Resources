@@ -60,7 +60,7 @@ YouTube links and Video demos.
 
 Watch Media
 
-🚀 Featured Simulation: [Insert Sim Name, e.g., The Physical Pendulum]
+🚀 Featured Simulation: [Rotational_Dynamics_Simulator (4)]
 
 Click the link below to launch the simulation directly in your browser:
 
@@ -68,4 +68,4 @@ Click the link below to launch the simulation directly in your browser:
 
 Note: This simulation uses a high-fidelity RK4 integrator to ensure energy conservation. Includes Time-Domain, Phase Space, and Energy Bar charts.
 
-Facilitated by: [Your Name]
+Facilitated by: [Rabih A.G.]
