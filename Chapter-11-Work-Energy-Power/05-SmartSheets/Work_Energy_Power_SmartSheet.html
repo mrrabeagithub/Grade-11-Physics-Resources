@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Worksheet: Work, Energy & Power - Grade 11</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- SweetAlert2 for UI Messages -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- MathJax for Physics Equations -->
+    <script>
+        MathJax = {
+            tex: {
+                inlineMath: [['$', '$'], ['\\(', '\\)']],
+                displayMath: [['$$', '$$'], ['\\[', '\\]']]
+            },
+            svg: {
+                fontCache: 'global'
+            }
+        };
+    </script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+    <script>
+        // Tailwind Dark Mode configuration
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        darkBg: '#0f172a',
+                        darkCard: '#1e293b',
+                        darkText: '#cbd5e1',
+                        primary: '#3b82f6',
+                        secondary: '#10b981'
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        .option-btn {
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .option-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+        }
+        .math-rendered {
+            font-size: 1.1em;
+        }
+        @media print {
+            .no-print { display: none; }
+        }
+    </style>
+</head>
+<body class="bg-slate-50 dark:bg-darkBg text-slate-800 dark:text-darkText transition-colors duration-300 min-h-screen">
+
+    <!-- Sticky Header -->
+    <header class="bg-white dark:bg-darkCard border-b border-slate-200 dark:border-slate-700 p-4 sticky top-0 z-50 shadow-sm no-print">
+        <div class="max-w-4xl mx-auto flex justify-between items-center">
+            <div class="flex items-center gap-3">
+                <div class="bg-primary p-2 rounded-lg text-white">
+                    <i class="fa-solid fa-bolt"></i>
+                </div>
+                <div>
+                    <h1 class="font-bold text-lg leading-tight">Work, Energy & Power</h1>
+                    <p class="text-xs text-slate-500 dark:text-slate-400">Physics - Grade 11 - Mechanics</p>
+                </div>
+            </div>
+            <div class="flex items-center gap-2">
+                <button onclick="toggleDarkMode()" class="p-2 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
+                    <i id="themeIcon" class="fa-solid fa-moon"></i>
+                </button>
+                <button id="logoutBtn" onclick="location.reload()" class="hidden p-2 rounded-full hover:bg-red-50 text-red-500 transition-colors">
+                    <i class="fa-solid fa-right-from-bracket"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-4xl mx-auto p-4 md:p-8">
+        <!-- Login Section -->
+        <section id="loginScreen" class="bg-white dark:bg-darkCard rounded-2xl shadow-xl border border-slate-200 dark:border-slate-700 p-8 max-w-md mx-auto mt-12 transition-all no-print">
+            <div class="text-center mb-8">
+                <h2 class="text-2xl font-black mb-2">Student Access</h2>
+                <p class="text-slate-500 dark:text-slate-400">Enter your 4-digit access code to begin</p>
+            </div>
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-sm font-bold mb-2 ml-1">Access Code</label>
+                    <input type="password" id="accessCode" maxlength="4" placeholder="••••" 
+                           class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl p-4 text-center text-2xl tracking-[1em] focus:ring-2 focus:ring-primary focus:outline-none transition-all">
+                </div>
+                <button onclick="login()" class="w-full bg-primary hover:bg-blue-600 text-white font-bold py-4 rounded-xl shadow-lg transition-all active:scale-[0.98]">
+                    Verify Identity
+                </button>
+            </div>
+        </section>
+
+        <!-- Quiz Screen -->
+        <section id="quizScreen" class="hidden space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+            <!-- Student Header -->
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center bg-white dark:bg-darkCard p-4 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 gap-4 no-print">
+                <div class="flex items-center gap-3">
+                    <div class="h-10 w-10 bg-blue-100 dark:bg-blue-900 rounded-full flex items-center justify-center text-primary font-bold">
+                        <i class="fa-solid fa-user-check"></i>
+                    </div>
+                    <div class="text-left" dir="auto">
+                        <span class="block text-xs text-slate-500 dark:text-slate-400">Authenticated Student</span>
+                        <span id="studentNameDisplay" class="font-bold">--</span>
+                    </div>
+                </div>
+                <div class="flex gap-2 w-full md:w-auto">
+                    <div class="flex-1 md:w-32 bg-slate-50 dark:bg-slate-900 p-2 rounded-lg text-center border border-slate-100 dark:border-slate-800">
+                        <span class="block text-[10px] text-slate-400 uppercase font-black">Progress</span>
+                        <span id="progressText" class="font-mono font-bold">0%</span>
+                    </div>
+                    <button onclick="submitResults()" class="flex-1 md:w-32 bg-secondary hover:bg-emerald-600 text-white font-bold rounded-lg shadow-md transition-all active:scale-[0.98]">
+                        Submit Final
+                    </button>
+                </div>
+            </div>
+
+            <!-- Questions Container -->
+            <div id="questionsContainer" class="space-y-12 pb-20">
+                <!-- Dynamically Injected -->
+            </div>
+        </section>
+
+        <!-- Results Screen -->
+        <section id="resultsScreen" class="hidden space-y-8 text-center py-12 animate-in zoom-in duration-500">
+            <div class="bg-white dark:bg-darkCard rounded-3xl shadow-2xl p-12 max-w-lg mx-auto border-t-8 border-primary relative overflow-hidden">
+                <div class="absolute top-0 right-0 p-4 opacity-10 text-8xl">
+                    <i class="fa-solid fa-award"></i>
+                </div>
+                <h2 class="text-3xl font-black mb-4 text-primary">Worksheet Complete!</h2>
+                <p class="text-slate-500 dark:text-slate-400 mb-8">Your results have been synchronized with the class dashboard.</p>
+                
+                <div class="inline-block p-8 bg-slate-50 dark:bg-slate-900 rounded-full border-4 border-white dark:border-slate-800 shadow-inner mb-8">
+                    <span id="finalScore" class="text-6xl font-black text-slate-800 dark:text-white">0%</span>
+                </div>
+
+                <div class="space-y-4 mb-8">
+                    <div class="flex justify-between p-3 bg-slate-50 dark:bg-slate-900 rounded-xl">
+                        <span class="text-slate-500">Student:</span>
+                        <span id="resultName" class="font-bold" dir="auto">--</span>
+                    </div>
+                </div>
+
+                <div class="flex gap-4 no-print">
+                    <button onclick="window.print()" class="flex-1 bg-slate-800 text-white font-bold py-3 rounded-xl hover:bg-slate-700 transition-all">
+                        <i class="fa-solid fa-print mr-2"></i>Export Result
+                    </button>
+                    <button onclick="location.reload()" class="flex-1 bg-primary text-white font-bold py-3 rounded-xl hover:bg-blue-600 transition-all">
+                        New Session
+                    </button>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        // ==========================================
+        // CONFIGURATION & DATABASE (Grade 11)
+        // ==========================================
+        const CONFIG = {
+            grade: "G11",
+            topic: "Work, Energy & Power",
+            // UPDATED URL FOR GRADE 11
+            scriptURL: "https://script.google.com/macros/s/AKfycbwi6mohSrHkJ2iuQuLvg-EgEjYuAdrtNRyI9NgtljuNdgfzjUR-gKTvO7O889fNguAiiQ/exec",
+            students: {
+                "Teacher": "0000",
+                "Tutor": "1111",
+                "احمد / محمد / الخالد": "3580", "احمد / هيثم / سبلبل": "7732", "امير خالد / وليد / مهتدي": "5294", 
+                "انطون / عبد الله / مشحم": "8738", "بسام / محمد / طالب": "5644", "زكريا / مصطفى / مراد": "7808", 
+                "عبد العزيز / ناصر / عساف": "8893", "عمر / كمال / باليقه": "8900", "كامل / احمد / رنو": "7749", 
+                "محمد علي / محمد / الرفاعي": "8073", "ميار / حسام الدين / ديري": "3098", "هادي / عمر / قره علي": "8597", 
+                "هاني / عمر / ابراهيم": "6722", "يحيى / زيد / حمزة": "7439", "يحيى / ماهر / مراد": "3655", 
+                "يوسف / منير / ابراهيم": "6634"
+            }
+        };
+
+        const QUESTIONS = [
+            {
+                id: 1,
+                text: "The work done $W$ by a constant force $\\vec{F}$ over a displacement $\\vec{d}$ is mathematically defined as:",
+                options: [
+                    "$W = F \\cdot d$",
+                    "$W = F \\cdot d \\cdot \\cos(\\theta)$",
+                    "$W = \\frac{1}{2} F d^2$",
+                    "$W = m \\cdot g \\cdot h$"
+                ],
+                answer: 1,
+                hint: "Work depends on the angle between the force and displacement vectors."
+            },
+            {
+                id: 2,
+                text: "The Kinetic Energy $E_k$ of an object of mass $m$ moving at velocity $v$ is given by:",
+                options: [
+                    "$E_k = m \\cdot v$",
+                    "$E_k = m \\cdot g \\cdot h$",
+                    "$E_k = \\frac{1}{2} m v^2$",
+                    "$E_k = \\frac{1}{2} k x^2$"
+                ],
+                answer: 2,
+                hint: "Kinetic energy is proportional to the square of the speed."
+            },
+            {
+                id: 3,
+                text: "According to the Work-Energy Theorem, the net work done on an object is equal to:",
+                options: [
+                    "The change in its Potential Energy",
+                    "The change in its Kinetic Energy",
+                    "The total Mechanical Energy",
+                    "The force times distance"
+                ],
+                answer: 1,
+                hint: "$\\sum W_{ext} = \\Delta E_k$."
+            },
+            {
+                id: 4,
+                text: "Power $P$ is defined as the rate of doing work. Its standard SI unit is:",
+                options: [
+                    "Joule (J)",
+                    "Newton (N)",
+                    "Watt (W)",
+                    "Pascal (Pa)"
+                ],
+                answer: 2,
+                hint: "1 Watt = 1 Joule per second."
+            },
+            {
+                id: 5,
+                text: "If only conservative forces (like gravity) act on a system, the total Mechanical Energy ($E_m = E_k + E_p$):",
+                options: [
+                    "Increases linearly",
+                    "Decreases due to heat",
+                    "Remains constant (Conserved)",
+                    "Becomes zero"
+                ],
+                answer: 2,
+                hint: "Energy cannot be created or destroyed, only transformed, if there's no friction."
+            }
+        ];
+
+        // ==========================================
+        // APP LOGIC
+        // ==========================================
+        let currentUser = null;
+        let userResponses = {};
+
+        function login() {
+            const code = document.getElementById('accessCode').value.trim();
+            const studentName = Object.keys(CONFIG.students).find(key => CONFIG.students[key] === code);
+
+            if (studentName) {
+                currentUser = studentName;
+                document.getElementById('loginScreen').classList.add('hidden');
+                document.getElementById('quizScreen').classList.remove('hidden');
+                document.getElementById('logoutBtn').classList.remove('hidden');
+                document.getElementById('studentNameDisplay').innerText = studentName;
+                initQuiz();
+                
+                Swal.fire({
+                    title: 'Welcome',
+                    text: `Identification verified. Hello ${studentName.split(' / ')[0]}!`,
+                    icon: 'success',
+                    timer: 2000,
+                    showConfirmButton: false
+                });
+            } else {
+                Swal.fire({
+                    title: 'Access Denied',
+                    text: 'Invalid code. Check your credentials and try again.',
+                    icon: 'error',
+                    confirmButtonColor: '#3b82f6'
+                });
+            }
+        }
+
+        function initQuiz() {
+            const container = document.getElementById('questionsContainer');
+            container.innerHTML = QUESTIONS.map((q, idx) => `
+                <div class="bg-white dark:bg-darkCard rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 p-6 md:p-8 transition-all hover:shadow-md">
+                    <div class="flex items-start gap-4 mb-6">
+                        <div class="h-8 w-8 bg-slate-100 dark:bg-slate-800 rounded-lg flex items-center justify-center font-bold text-slate-400">
+                            ${idx + 1}
+                        </div>
+                        <h3 class="text-lg md:text-xl font-bold leading-relaxed math-rendered">
+                            ${q.text}
+                        </h3>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mb-6">
+                        ${q.options.map((opt, optIdx) => `
+                            <button onclick="selectOption(${q.id}, ${optIdx})" 
+                                    id="q${q.id}-opt${optIdx}"
+                                    class="option-btn p-4 rounded-xl border-2 border-slate-100 dark:border-slate-800 text-left hover:border-primary hover:bg-blue-50 dark:hover:bg-blue-900/20 font-medium transition-all flex items-center gap-3">
+                                <span class="h-6 w-6 rounded-full border-2 border-slate-200 dark:border-slate-700 flex items-center justify-center text-xs font-bold uppercase">
+                                    ${String.fromCharCode(97 + optIdx)}
+                                </span>
+                                <span class="math-rendered">${opt}</span>
+                            </button>
+                        `).join('')}
+                    </div>
+
+                    <div class="flex items-center justify-between pt-4 border-t border-slate-50 dark:border-slate-800">
+                        <button onclick="showHint(${idx})" class="text-xs font-bold text-slate-400 hover:text-primary transition-colors flex items-center gap-1">
+                            <i class="fa-solid fa-lightbulb"></i> Need a hint?
+                        </button>
+                        <span id="status-${q.id}" class="text-[10px] font-black uppercase tracking-widest text-slate-300">Pending</span>
+                    </div>
+                </div>
+            `).join('');
+            
+            if (window.MathJax) MathJax.typeset();
+        }
+
+        function selectOption(qId, optIdx) {
+            userResponses[qId] = optIdx;
+            
+            const q = QUESTIONS.find(q => q.id === qId);
+            q.options.forEach((_, i) => {
+                const btn = document.getElementById(`q${qId}-opt${i}`);
+                btn.classList.remove('border-primary', 'bg-blue-50', 'dark:bg-blue-900/20', 'ring-2', 'ring-primary/20');
+                btn.classList.add('border-slate-100', 'dark:border-slate-800');
+            });
+
+            const selectedBtn = document.getElementById(`q${qId}-opt${optIdx}`);
+            selectedBtn.classList.remove('border-slate-100', 'dark:border-slate-800');
+            selectedBtn.classList.add('border-primary', 'bg-blue-50', 'dark:bg-blue-900/20', 'ring-2', 'ring-primary/20');
+
+            document.getElementById(`status-${qId}`).innerText = "Completed";
+            document.getElementById(`status-${qId}`).classList.replace('text-slate-300', 'text-secondary');
+
+            updateProgress();
+        }
+
+        function updateProgress() {
+            const answeredCount = Object.keys(userResponses).length;
+            const pct = Math.round((answeredCount / QUESTIONS.length) * 100);
+            document.getElementById('progressText').innerText = `${pct}%`;
+        }
+
+        function showHint(idx) {
+            Swal.fire({
+                title: 'Physics Context',
+                html: `<div class="math-rendered text-slate-600 dark:text-slate-400 p-4">${QUESTIONS[idx].hint}</div>`,
+                icon: 'info',
+                confirmButtonColor: '#3b82f6'
+            }).then(() => { if (window.MathJax) MathJax.typeset(); });
+        }
+
+        async function submitResults() {
+            if (Object.keys(userResponses).length < QUESTIONS.length) {
+                const check = await Swal.fire({
+                    title: 'Worksheet Incomplete',
+                    text: "Some questions are still pending. Submit anyway?",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonText: 'Submit Final',
+                    cancelButtonText: 'Go Back',
+                    confirmButtonColor: '#10b981'
+                });
+                if (!check.isConfirmed) return;
+            }
+
+            Swal.fire({
+                title: 'Transmitting...',
+                text: 'Syncing telemetry with Grade 11 database.',
+                allowOutsideClick: false,
+                didOpen: () => { Swal.showLoading(); }
+            });
+
+            let score = 0;
+            let details = [];
+            QUESTIONS.forEach(q => {
+                const isCorrect = userResponses[q.id] === q.answer;
+                if (isCorrect) score++;
+                details.push(`Q${q.id}: ${isCorrect ? 'Correct' : 'Incorrect'}`);
+            });
+
+            const finalPct = Math.round((score / QUESTIONS.length) * 100);
+            
+            const payload = {
+                name: currentUser,
+                topic: CONFIG.topic,
+                score: finalPct,
+                answers: details.join(", ")
+            };
+
+            fetch(CONFIG.scriptURL, {
+                method: 'POST',
+                mode: 'no-cors',
+                headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                body: JSON.stringify(payload)
+            })
+            .then(() => {
+                document.getElementById('quizScreen').classList.add('hidden');
+                document.getElementById('resultsScreen').classList.remove('hidden');
+                document.getElementById('finalScore').innerText = `${finalPct}%`;
+                document.getElementById('resultName').innerText = currentUser;
+                Swal.close();
+            })
+            .catch(err => {
+                console.error(err);
+                Swal.fire({
+                    title: 'Sync Error',
+                    text: 'Connection lost. Please screenshot your final score.',
+                    icon: 'error',
+                    confirmButtonText: 'OK',
+                    confirmButtonColor: '#ef4444'
+                });
+            });
+        }
+
+        function toggleDarkMode() {
+            const htmlClasses = document.documentElement.classList;
+            const themeIcon = document.getElementById('themeIcon');
+            
+            if (htmlClasses.contains('dark')) {
+                htmlClasses.remove('dark');
+                themeIcon.classList.remove('fa-sun');
+                themeIcon.classList.add('fa-moon');
+                localStorage.setItem('theme', 'light');
+            } else {
+                htmlClasses.add('dark');
+                themeIcon.classList.remove('fa-moon');
+                themeIcon.classList.add('fa-sun');
+                localStorage.setItem('theme', 'dark');
+            }
+        }
+
+        if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.classList.add('dark');
+            document.getElementById('themeIcon').classList.remove('fa-moon');
+            document.getElementById('themeIcon').classList.add('fa-sun');
+        } else {
+            document.documentElement.classList.remove('dark');
+        }
+    </script>
+</body>
+</html>
