@@ -37,7 +37,9 @@
                     colors: {
                         darkBg: '#0f172a',
                         darkCard: '#1e293b',
-                        darkText: '#cbd5e1'
+                        darkText: '#f1f5f9',
+                        primary: '#3b82f6',
+                        secondary: '#10b981'
                     }
                 }
             }
@@ -45,487 +47,387 @@
     </script>
 
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
-        body {
-            font-family: 'Inter', sans-serif;
-            transition: background-color 0.3s, color 0.3s;
+        .option-btn {
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
         }
-        .physics-text {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            direction: ltr;
-            text-align: left;
+        .option-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
         }
-        
-        /* إعدادات الطباعة */
+        .math-rendered {
+            font-size: 1.1em;
+        }
         @media print {
-            .no-print { display: none !important; }
-            body { background-color: white !important; color: black !important; }
-            .print-border { border: 1px solid #ccc !important; box-shadow: none !important; }
-            .dark-mode-override { background-color: white !important; color: black !important; }
+            .no-print { display: none; }
         }
     </style>
 </head>
-<body class="bg-gray-50 text-gray-800 dark:bg-darkBg dark:text-darkText min-h-screen">
+<body class="bg-slate-50 dark:bg-darkBg text-slate-800 dark:text-darkText transition-colors duration-300 min-h-screen">
 
-    <!-- شاشة تسجيل الدخول -->
-    <div id="loginScreen" class="flex items-center justify-center min-h-screen bg-blue-600 dark:bg-slate-900 transition-colors duration-300">
-        <div class="bg-white dark:bg-darkCard p-8 rounded-2xl shadow-2xl w-full max-w-md text-center transform transition-all">
-            <i class="fas fa-atom text-5xl text-blue-500 dark:text-blue-400 mb-4 animate-pulse"></i>
-            <h1 class="text-2xl font-bold mb-2 text-gray-800 dark:text-white">Smart-Sheet Physics</h1>
-            <p class="text-gray-500 dark:text-gray-400 mb-6">Grade 11 - Rotational Dynamics</p>
-            
-            <input type="password" id="accessCode" placeholder="Enter your Access Code" 
-                class="w-full px-4 py-3 border-2 border-gray-200 dark:border-gray-600 rounded-lg mb-4 text-center text-xl tracking-widest focus:border-blue-500 focus:outline-none dark:bg-slate-800 dark:text-white transition-colors"
-                onkeypress="if(event.key === 'Enter') checkLogin()">
-            
-            <button onclick="checkLogin()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-lg transition-colors duration-300 shadow-lg">
-                Login <i class="fas fa-sign-in-alt ml-2"></i>
-            </button>
-        </div>
-    </div>
-
-    <!-- ورقة العمل (مخفية حتى تسجيل الدخول) -->
-    <div id="worksheetScreen" class="hidden max-w-4xl mx-auto p-4 md:p-8">
-        
-        <!-- شريط التحكم العلوي -->
-        <div class="flex flex-col md:flex-row justify-between items-center bg-white dark:bg-darkCard p-4 rounded-xl shadow-md mb-6 print-border no-print">
-            <div class="flex items-center mb-4 md:mb-0">
-                <div class="bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 p-3 rounded-full mr-4 ml-4">
-                    <i class="fas fa-user-graduate text-xl"></i>
+    <!-- شريط علوي -->
+    <header class="bg-white dark:bg-darkCard border-b border-slate-200 dark:border-slate-700 p-4 sticky top-0 z-50 shadow-sm no-print">
+        <div class="max-w-4xl mx-auto flex justify-between items-center">
+            <div class="flex items-center gap-3">
+                <div class="bg-primary p-2 rounded-lg text-white">
+                    <i class="fa-solid fa-rotate"></i>
                 </div>
                 <div>
-                    <p class="text-sm text-gray-500 dark:text-gray-400">Student</p>
-                    <p id="studentNameDisplay" class="font-bold text-lg text-gray-800 dark:text-white" dir="rtl">Name Here</p>
+                    <h1 class="font-bold text-lg leading-tight">Rotational Dynamics</h1>
+                    <p class="text-xs text-slate-500 dark:text-slate-400">Physics - Grade 11 - 2024/2025</p>
                 </div>
             </div>
-            
-            <div class="flex space-x-3">
-                <button onclick="toggleDarkMode()" class="bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 text-gray-800 dark:text-white p-3 rounded-lg transition-colors" title="Toggle Dark/Light Mode">
-                    <i id="themeIcon" class="fas fa-moon"></i>
+            <div class="flex items-center gap-2">
+                <button onclick="toggleDarkMode()" class="p-2 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
+                    <i id="themeIcon" class="fa-solid fa-moon"></i>
                 </button>
-                <button onclick="window.print()" class="bg-green-100 dark:bg-green-900 hover:bg-green-200 dark:hover:bg-green-800 text-green-700 dark:text-green-300 p-3 rounded-lg transition-colors" title="Print">
-                    <i class="fas fa-print"></i>
+                <button id="logoutBtn" onclick="location.reload()" class="hidden p-2 rounded-full hover:bg-red-50 text-red-500 transition-colors">
+                    <i class="fa-solid fa-right-from-bracket"></i>
                 </button>
             </div>
         </div>
+    </header>
 
-        <!-- ترويسة ورقة العمل -->
-        <div class="bg-white dark:bg-darkCard p-6 rounded-xl shadow-md mb-6 print-border">
-            <h2 class="text-2xl font-bold mb-2 text-center text-blue-600 dark:text-blue-400">Rotational Dynamics MCQ Mega-Review</h2>
-            <p class="text-center text-gray-600 dark:text-gray-400 mb-4">Grade 11 Physics | Conceptual & Analytical Application</p>
-            
-            <div class="bg-blue-50 dark:bg-slate-800 p-4 rounded-lg border-l-4 border-blue-500 physics-text">
-                <h3 class="font-bold mb-2 text-gray-800 dark:text-gray-200"><i class="fas fa-info-circle mr-2 text-blue-500"></i>Reference Information</h3>
-                <ul class="list-disc list-inside text-gray-700 dark:text-gray-300 space-y-1">
-                    <li>Gravity: $g=10~m/s^{2}$</li>
-                    <li>Sign Convention: Counter-clockwise (CCW) is positive (+). Clockwise (CW) is negative (-).</li>
-                    <li>Inertia Formulas: Solid Disk $(I=\frac{1}{2}MR^{2})$, Thin Rod pivoted at end $(I=\frac{1}{3}ML^{2})$, Point Mass $(I=mr^{2})$.</li>
-                </ul>
+    <main class="max-w-4xl mx-auto p-4 md:p-8">
+        <!-- شاشة تسجيل الدخول -->
+        <section id="loginScreen" class="bg-white dark:bg-darkCard rounded-2xl shadow-xl border border-slate-200 dark:border-slate-700 p-8 max-w-md mx-auto mt-12 transition-all no-print">
+            <div class="text-center mb-8">
+                <h2 class="text-2xl font-black mb-2">Student Access</h2>
+                <p class="text-slate-500 dark:text-slate-400">Enter your 4-digit access code to begin the worksheet</p>
             </div>
-        </div>
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-sm font-bold mb-2 ml-1">Access Code</label>
+                    <input type="password" id="accessCode" maxlength="4" placeholder="••••" 
+                           class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl p-4 text-center text-2xl tracking-[1em] focus:ring-2 focus:ring-primary focus:outline-none transition-all">
+                </div>
+                <button onclick="login()" class="w-full bg-primary hover:bg-blue-600 text-white font-bold py-4 rounded-xl shadow-lg transition-all active:scale-[0.98]">
+                    Verify Identity
+                </button>
+            </div>
+            <div class="mt-8 pt-6 border-t border-slate-100 dark:border-slate-800 text-center">
+                <p class="text-[10px] text-slate-400 uppercase tracking-widest font-bold">Secure Education Portal</p>
+            </div>
+        </section>
 
-        <!-- حاوية الأسئلة -->
-        <div id="questionsContainer" class="space-y-6">
-            <!-- يتم حقن الأسئلة هنا عبر JavaScript -->
-        </div>
+        <!-- واجهة الأسئلة -->
+        <section id="quizScreen" class="hidden space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+            <!-- معلومات الطالب -->
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center bg-white dark:bg-darkCard p-4 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 gap-4 no-print">
+                <div class="flex items-center gap-3">
+                    <div class="h-10 w-10 bg-blue-100 dark:bg-blue-900 rounded-full flex items-center justify-center text-primary font-bold">
+                        <i class="fa-solid fa-user"></i>
+                    </div>
+                    <div class="text-right" dir="auto">
+                        <span class="block text-xs text-slate-500 dark:text-slate-400">Student Identity</span>
+                        <span id="studentNameDisplay" class="font-bold">--</span>
+                    </div>
+                </div>
+                <div class="flex gap-2 w-full md:w-auto">
+                    <div class="flex-1 md:w-32 bg-slate-50 dark:bg-slate-900 p-2 rounded-lg text-center border border-slate-100 dark:border-slate-800">
+                        <span class="block text-[10px] text-slate-400 uppercase font-black">Progress</span>
+                        <span id="progressText" class="font-mono font-bold">0%</span>
+                    </div>
+                    <button onclick="submitResults()" class="flex-1 md:w-32 bg-secondary hover:bg-emerald-600 text-white font-bold rounded-lg shadow-md transition-all active:scale-[0.98]">
+                        Finish
+                    </button>
+                </div>
+            </div>
 
-        <!-- زر الإرسال -->
-        <div class="mt-8 text-center no-print">
-            <button onclick="submitWorksheet()" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 px-12 rounded-full text-xl shadow-xl transition-transform transform hover:scale-105">
-                Submit Answers <i class="fas fa-paper-plane ml-2"></i>
-            </button>
-        </div>
+            <!-- حاوية الأسئلة -->
+            <div id="questionsContainer" class="space-y-12 pb-20">
+                <!-- سيتم حقن الأسئلة هنا بواسطة JavaScript -->
+            </div>
+        </section>
 
-    </div>
+        <!-- واجهة النتائج النهائية (للطباعة) -->
+        <section id="resultsScreen" class="hidden space-y-8 text-center py-12 animate-in zoom-in duration-500">
+            <div class="bg-white dark:bg-darkCard rounded-3xl shadow-2xl p-12 max-w-lg mx-auto border-t-8 border-primary relative overflow-hidden">
+                <div class="absolute top-0 right-0 p-4 opacity-10 text-8xl">
+                    <i class="fa-solid fa-certificate"></i>
+                </div>
+                <h2 class="text-3xl font-black mb-4 text-primary">Worksheet Complete!</h2>
+                <p class="text-slate-500 dark:text-slate-400 mb-8">Great job on finishing the Rotational Dynamics module.</p>
+                
+                <div class="inline-block p-8 bg-slate-50 dark:bg-slate-900 rounded-full border-4 border-white dark:border-slate-800 shadow-inner mb-8">
+                    <span id="finalScore" class="text-6xl font-black text-slate-800 dark:text-white">0%</span>
+                </div>
+
+                <div class="space-y-4 mb-8">
+                    <div class="flex justify-between p-3 bg-slate-50 dark:bg-slate-900 rounded-xl">
+                        <span class="text-slate-500">Student Name:</span>
+                        <span id="resultName" class="font-bold" dir="auto">--</span>
+                    </div>
+                </div>
+
+                <div class="flex gap-4 no-print">
+                    <button onclick="window.print()" class="flex-1 bg-slate-800 text-white font-bold py-3 rounded-xl hover:bg-slate-700 transition-all">
+                        <i class="fa-solid fa-print mr-2"></i>Print Result
+                    </button>
+                    <button onclick="location.reload()" class="flex-1 bg-primary text-white font-bold py-3 rounded-xl hover:bg-blue-600 transition-all">
+                        New Session
+                    </button>
+                </div>
+            </div>
+        </section>
+    </main>
 
     <script>
-        // إعدادات وبيانات قاعدة الصف (Grade 11)
+        // ==========================================
+        // 1. CONFIGURATION & DATABASE
+        // ==========================================
         const CONFIG = {
-            topic: "Rotational Dynamics (G11)",
-            url: "https://script.google.com/macros/s/AKfycbzvPyhAatLMEdH07OnVd2Qq6YiEDfx0GTrC_YQWaFO-EuZSidqhtVsu46x0RmrykxJJ8w/exec",
+            grade: "G11",
+            topic: "Rotational Dynamics",
+            // UPDATED URL FOR GRADE 11
+            scriptURL: "https://script.google.com/macros/s/AKfycbwi6mohSrHkJ2iuQuLvg-EgEjYuAdrtNRyI9NgtljuNdgfzjUR-gKTvO7O889fNguAiiQ/exec",
             students: {
-                "احمد / محمد / الخالد": "3580",
-                "احمد / هيثم / سبلبل": "7732",
-                "امير خالد / وليد / مهتدي": "5294",
-                "انطون / عبد الله / مشحم": "8738",
-                "بسام / محمد / طالب": "5644",
-                "زكريا / مصطفى / مراد": "7808",
-                "عبد العزيز / ناصر / عساف": "8893",
-                "عمر / كمال / باليقه": "8900",
-                "كامل / احمد / رنو": "7749",
-                "محمد علي / محمد / الرفاعي": "8073",
-                "ميار / حسام الدين / ديري": "3098",
-                "هادي / عمر / قره علي": "8597",
-                "هاني / عمر / ابراهيم": "6722",
-                "يحيى / زيد / حمزة": "7439",
-                "يحيى / ماهر / مراد": "3655",
-                "يوسف / منير / ابراهيم": "6634"
-            },
-            special_roles: {
                 "Teacher": "0000",
-                "Tutor": "1111"
+                "Tutor": "1111",
+                "احمد / محمد / الخالد": "3580", "احمد / هيثم / سبلبل": "7732", "امير خالد / وليد / مهتدي": "5294", 
+                "انطون / عبد الله / مشحم": "8738", "بسام / محمد / طالب": "5644", "زكريا / مصطفى / مراد": "7808", 
+                "عبد العزيز / ناصر / عساف": "8893", "عمر / كمال / باليقه": "8900", "كامل / احمد / رنو": "7749", 
+                "محمد علي / محمد / الرفاعي": "8073", "ميار / حسام الدين / ديري": "3098", "هادي / عمر / قره علي": "8597", 
+                "هاني / عمر / ابراهيم": "6722", "يحيى / زيد / حمزة": "7439", "يحيى / maهر / مراد": "3655", 
+                "يوسف / منير / ابراهيم": "6634"
             }
         };
 
-        // دمج وإنشاء خريطة عكسية (كود -> اسم)
-        const codeToName = {};
-        for (const [name, code] of Object.entries(CONFIG.students)) {
-            codeToName[code] = name;
-        }
-        for (const [name, code] of Object.entries(CONFIG.special_roles)) {
-            codeToName[code] = name;
-        }
-
-        let currentStudent = "";
-
-        // بيانات الأسئلة (المحدثة والمتدرجة في الصعوبة إلى 10 أسئلة)
-        const questionsData = [
+        const QUESTIONS = [
             {
-                id: "Q1",
-                text: "Which of the following scenarios describes an object undergoing purely translational motion?",
-                options: {
-                    "A": "A ceiling fan spinning at a constant speed.",
-                    "B": "A rolling barrel moving down a ramp.",
-                    "C": "An elevator cabin moving vertically up a straight shaft.",
-                    "D": "A door swinging open on its hinges."
-                },
-                correct: "C",
-                difficulty: "easy",
-                hint: "In purely translational motion, every point on the object moves the exact same distance and direction."
+                id: 1,
+                text: "The torque $\\tau$ produced by a force $\\vec{F}$ acting at a point at distance $r$ from the axis is defined as:",
+                options: [
+                    "$\\tau = F \\cdot r$",
+                    "$\\tau = F \\cdot r \\cdot \\sin(\\theta)$",
+                    "$\\tau = F / r$",
+                    "$\\tau = m \\cdot a \\cdot r$"
+                ],
+                answer: 1,
+                hint: "Torque depends on the magnitude of the force, the lever arm, and the angle of application."
             },
             {
-                id: "Q2",
-                text: "Identify the type of motion a bicycle wheel undergoes as it rolls along a flat road without slipping.",
-                options: {
-                    "A": "Purely translational motion.",
-                    "B": "Purely rotational motion.",
-                    "C": "Combined translational and rotational motion.",
-                    "D": "Simple harmonic motion."
-                },
-                correct: "C",
-                difficulty: "easy",
-                hint: "The center of the wheel moves forward (translation) while the wheel itself turns around its center (rotation)."
+                id: 2,
+                text: "For a rigid body rotating about a fixed axis, the Newton's Second Law for rotation is written as:",
+                options: [
+                    "$\\sum F = m a$",
+                    "$\\sum \\tau = I \\alpha$",
+                    "$\\sum \\tau = m r^2$",
+                    "$\\sum P = I \\omega$"
+                ],
+                answer: 1,
+                hint: "In rotation, Moment of Inertia $(I)$ replaces mass and angular acceleration $(\\alpha)$ replaces linear acceleration."
             },
             {
-                id: "Q3",
-                text: "A technician applies a force to a heavy wrench to loosen a bolt. Under which of the following conditions will the applied torque be exactly zero?",
-                options: {
-                    "A": "The force is applied at the farthest end of the wrench handle.",
-                    "B": "The line of action of the force passes directly through the center of the bolt.",
-                    "C": "The force is applied perpendicular $(90^{\\circ})$ to the wrench handle.",
-                    "D": "The force is applied continuously for more than 10 seconds."
-                },
-                correct: "B",
-                difficulty: "easy",
-                hint: "Torque $\\tau = F \\cdot r \\cdot \\sin(\\theta)$. If the line of action passes through the pivot, what is the lever arm distance ($r$)?"
+                id: 3,
+                text: "The moment of inertia of a point mass $m$ at a distance $r$ from the axis of rotation is:",
+                options: [
+                    "$I = m \\cdot r$",
+                    "$I = m \\cdot r^2$",
+                    "$I = \\frac{1}{2} m r^2$",
+                    "$I = m / r^2$"
+                ],
+                answer: 1,
+                hint: "Think about the resistance to rotational motion."
             },
             {
-                id: "Q4",
-                text: "A technician applies a force $F=60\\text{ N}$ to a wrench. The distance from the bolt (pivot) to the point of application is $r=0.25\\text{ m}$. If the force is applied perpendicular $(90^{\\circ})$ to the wrench, what is the magnitude of the torque?",
-                options: {
-                    "A": "$15 \\text{ N}\\cdot\\text{m}$",
-                    "B": "$60 \\text{ N}\\cdot\\text{m}$",
-                    "C": "$120 \\text{ N}\\cdot\\text{m}$",
-                    "D": "$240 \\text{ N}\\cdot\\text{m}$"
-                },
-                correct: "A",
-                difficulty: "medium",
-                hint: "Use the formula for torque: $\\tau = F \\times r \\times \\sin(\\theta)$. Since it's perpendicular, $\\sin(90^{\\circ}) = 1$."
+                id: 4,
+                text: "A disc and a hoop of the same mass and radius are released from the top of an incline. Which reaches the bottom first?",
+                options: [
+                    "The hoop (larger $I$)",
+                    "The disc (smaller $I$)",
+                    "Both at the same time",
+                    "It depends on the friction"
+                ],
+                answer: 1,
+                hint: "A smaller moment of inertia means the object is easier to accelerate rotationally."
             },
             {
-                id: "Q5",
-                text: "A steering wheel is pivoted at its center. Two forces are applied to its outer rim (radius $r = 0.2\\text{ m}$). Force $F_1 = 30\\text{ N}$ is applied tangentially, causing a counter-clockwise rotation. Force $F_2 = 45\\text{ N}$ is applied tangentially, causing a clockwise rotation. What is the Net Torque ($\\Sigma M$) acting on the wheel?",
-                options: {
-                    "A": "+3 N·m",
-                    "B": "-3 N·m",
-                    "C": "-15 N·m",
-                    "D": "+15 N·m"
-                },
-                correct: "B",
-                difficulty: "medium",
-                hint: "Counter-clockwise is positive (+), Clockwise is negative (-). Calculate $(30 \\times 0.2) + (-45 \\times 0.2)$."
-            },
-            {
-                id: "Q6",
-                text: "A 3 m long massless seesaw is supported at its exact center. A 40 kg child sits 1.2 m to the left of the pivot. To achieve static rotational equilibrium, exactly where must a 60 kg adult sit on the right side of the pivot?",
-                options: {
-                    "A": "0.8 m",
-                    "B": "1.0 m",
-                    "C": "1.2 m",
-                    "D": "1.8 m"
-                },
-                correct: "A",
-                difficulty: "medium",
-                hint: "Apply $\\Sigma \\tau = 0$. $\\tau_{CCW} = \\tau_{CW}$. $(40)(10)(1.2) = (60)(10)(x)$. Solve for $x$."
-            },
-            {
-                id: "Q7",
-                text: "A solid disk flywheel in an engine has a mass of 10 kg and a radius of 0.2 m. What is its moment of inertia about its central axis?",
-                options: {
-                    "A": "$0.1 \\text{ kg}\\cdot\\text{m}^{2}$",
-                    "B": "$0.2 \\text{ kg}\\cdot\\text{m}^{2}$",
-                    "C": "$0.4 \\text{ kg}\\cdot\\text{m}^{2}$",
-                    "D": "$2.0 \\text{ kg}\\cdot\\text{m}^{2}$"
-                },
-                correct: "B",
-                difficulty: "hard",
-                hint: "Use the formula for a solid disk: $I = \\frac{1}{2}MR^{2}$."
-            },
-            {
-                id: "Q8",
-                text: "An antenna system consists of a uniform thin rod (mass $M=3$ kg, length $L=2\\text{ m}$) pivoted at its end, with a point mass of $1.5$ kg attached to the free end. What is the total moment of inertia of this system?",
-                options: {
-                    "A": "$4 \\text{ kg}\\cdot\\text{m}^{2}$",
-                    "B": "$6 \\text{ kg}\\cdot\\text{m}^{2}$",
-                    "C": "$10 \\text{ kg}\\cdot\\text{m}^{2}$",
-                    "D": "$12 \\text{ kg}\\cdot\\text{m}^{2}$"
-                },
-                correct: "C",
-                difficulty: "hard",
-                hint: "Calculate $I_{rod} = \\frac{1}{3}ML^{2}$ and $I_{mass} = mr^{2}$ (where $r=L$). Add them together: $\\frac{1}{3}(3)(2^2) + (1.5)(2^2)$."
-            },
-            {
-                id: "Q9",
-                text: "A solid cylindrical rotor ($M=4$ kg, $R=0.1$ m) has a tangential force of $10$ N applied to its outer edge. What is the generated torque ($\\tau$) and the moment of inertia ($I$) of the rotor?",
-                options: {
-                    "A": "$\\tau = 1.0 \\text{ N}\\cdot\\text{m}, \\; I = 0.02 \\text{ kg}\\cdot\\text{m}^2$",
-                    "B": "$\\tau = 0.5 \\text{ N}\\cdot\\text{m}, \\; I = 0.04 \\text{ kg}\\cdot\\text{m}^2$",
-                    "C": "$\\tau = 1.0 \\text{ N}\\cdot\\text{m}, \\; I = 0.04 \\text{ kg}\\cdot\\text{m}^2$",
-                    "D": "$\\tau = 40 \\text{ N}\\cdot\\text{m}, \\; I = 0.02 \\text{ kg}\\cdot\\text{m}^2$"
-                },
-                correct: "A",
-                difficulty: "stretcher",
-                hint: "Torque $\\tau = F \\times r$. Solid cylinder Inertia $I = \\frac{1}{2}MR^{2}$."
-            },
-            {
-                id: "Q10",
-                text: "A 4 m long uniform beam is pivoted exactly at its center. A 150 N weight is placed 1.5 m to the left of the pivot, and a 50 N weight is placed 2.0 m to the right of the pivot. To achieve perfect rotational equilibrium, where must a third weight of 100 N be placed?",
-                options: {
-                    "A": "1.25 m to the right of the pivot",
-                    "B": "1.25 m to the left of the pivot",
-                    "C": "0.75 m to the right of the pivot",
-                    "D": "2.25 m to the left of the pivot"
-                },
-                correct: "A",
-                difficulty: "stretcher",
-                hint: "Calculate net torque of the first two weights: $(+150 \\times 1.5) + (-50 \\times 2.0)$. Find out how much opposite torque is needed to make the total zero, then solve for distance $d$: $100 \\times d = \\text{Missing Torque}$."
+                id: 5,
+                text: "Work done by a constant torque $\\tau$ through an angular displacement $\\Delta\\theta$ is:",
+                options: [
+                    "$W = \\tau \\cdot \\omega$",
+                    "$W = \\tau \\cdot \\Delta\\theta$",
+                    "$W = \\frac{1}{2} I \\omega^2$",
+                    "$W = P \\cdot t$"
+                ],
+                answer: 1,
+                hint: "Work = Effort $\\times$ Displacement (Angular version)."
             }
         ];
 
-        // تهيئة واجهة الأسئلة
-        function renderQuestions() {
-            const container = document.getElementById('questionsContainer');
-            container.innerHTML = '';
+        // ==========================================
+        // 2. STATE MANAGEMENT
+        // ==========================================
+        let currentUser = null;
+        let userResponses = {};
 
-            questionsData.forEach((q, index) => {
-                // إعداد الشارة حسب الصعوبة
-                let badgeClass = "";
-                let badgeText = "";
-                if (q.difficulty === "easy") {
-                    badgeClass = "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200";
-                    badgeText = "Easy";
-                } else if (q.difficulty === "medium") {
-                    badgeClass = "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200";
-                    badgeText = "Medium";
-                } else if (q.difficulty === "hard") {
-                    badgeClass = "bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200";
-                    badgeText = "Hard";
-                } else {
-                    badgeClass = "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200";
-                    badgeText = "Brain Stretcher 🔥";
-                }
+        // ==========================================
+        // 3. CORE LOGIC
+        // ==========================================
+        function login() {
+            const code = document.getElementById('accessCode').value.trim();
+            const studentName = Object.keys(CONFIG.students).find(key => CONFIG.students[key] === code);
 
-                let optionsHTML = '';
-                for (const [key, val] of Object.entries(q.options)) {
-                    optionsHTML += `
-                        <label class="flex items-center p-3 border rounded-lg cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700 dark:border-gray-600 transition-colors physics-text">
-                            <input type="radio" name="${q.id}" value="${key}" class="w-5 h-5 text-blue-600 ml-4 focus:ring-blue-500">
-                            <span class="font-bold mr-2 text-blue-600 dark:text-blue-400">${key}.</span>
-                            <span class="text-gray-700 dark:text-gray-300 ml-2">${val}</span>
-                        </label>
-                    `;
-                }
-
-                const questionHTML = `
-                    <div class="bg-white dark:bg-darkCard p-6 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 print-border" id="container-${q.id}">
-                        <div class="flex justify-between items-start mb-4">
-                            <div class="flex-1 physics-text">
-                                <h4 class="text-lg font-bold text-gray-800 dark:text-white mb-2">
-                                    <span class="text-blue-600 dark:text-blue-400 mr-2">Q${index + 1}.</span> ${q.text}
-                                </h4>
-                            </div>
-                            <span class="no-print text-xs font-semibold px-3 py-1 rounded-full ${badgeClass} ml-4 whitespace-nowrap">
-                                ${badgeText} <i class="fas fa-layer-group ml-1"></i>
-                            </span>
-                        </div>
-                        
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mb-4">
-                            ${optionsHTML}
-                        </div>
-
-                        <div class="mt-4 no-print text-right">
-                            <button onclick="toggleHint('${q.id}')" class="text-sm text-blue-500 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 flex items-center inline-block">
-                                <i class="fas fa-lightbulb mr-1"></i> Show/Hide Hint
-                            </button>
-                            <div id="hint-${q.id}" class="hidden mt-2 p-3 bg-yellow-50 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-200 rounded-lg text-sm physics-text border-l-4 border-yellow-400">
-                                <i class="fas fa-info-circle mr-2"></i> ${q.hint}
-                            </div>
-                        </div>
-                    </div>
-                `;
-                container.innerHTML += questionHTML;
-            });
-
-            // إعادة تشغيل MathJax بعد إضافة العناصر
-            if (window.MathJax) {
-                MathJax.typesetPromise();
-            }
-        }
-
-        function toggleHint(id) {
-            const hintDiv = document.getElementById(`hint-${id}`);
-            hintDiv.classList.toggle('hidden');
-        }
-
-        // نظام تسجيل الدخول
-        function checkLogin() {
-            const codeInput = document.getElementById('accessCode').value.trim();
-            
-            if (codeToName[codeInput]) {
-                currentStudent = codeToName[codeInput];
-                document.getElementById('studentNameDisplay').innerText = currentStudent;
+            if (studentName) {
+                currentUser = studentName;
+                document.getElementById('loginScreen').classList.add('hidden');
+                document.getElementById('quizScreen').classList.remove('hidden');
+                document.getElementById('logoutBtn').classList.remove('hidden');
+                document.getElementById('studentNameDisplay').innerText = studentName;
+                initQuiz();
                 
-                // أنيميشن وإخفاء/إظهار
-                document.getElementById('loginScreen').style.opacity = '0';
-                setTimeout(() => {
-                    document.getElementById('loginScreen').style.display = 'none';
-                    document.getElementById('worksheetScreen').classList.remove('hidden');
-                    renderQuestions();
-                    
-                    Swal.fire({
-                        title: 'Login Successful!',
-                        text: `Welcome, ${currentStudent}`,
-                        icon: 'success',
-                        confirmButtonText: 'Start',
-                        confirmButtonColor: '#2563eb'
-                    });
-                }, 300);
+                Swal.fire({
+                    title: 'Welcome!',
+                    text: `Hello ${studentName.split(' / ')[0]}, let's start the worksheet.`,
+                    icon: 'success',
+                    timer: 2000,
+                    showConfirmButton: false
+                });
             } else {
                 Swal.fire({
-                    title: 'Error',
-                    text: 'Invalid access code. Please check your code and try again.',
+                    title: 'Access Denied',
+                    text: 'Invalid access code. Please check with your teacher.',
                     icon: 'error',
-                    confirmButtonText: 'OK',
-                    confirmButtonColor: '#ef4444'
+                    confirmButtonColor: '#3b82f6'
                 });
             }
         }
 
-        // نظام التقييم والإرسال
-        function submitWorksheet() {
-            let score = 0;
-            let totalQuestions = questionsData.length;
-            let answeredCount = 0;
-            let answersRecord = [];
+        function initQuiz() {
+            const container = document.getElementById('questionsContainer');
+            container.innerHTML = QUESTIONS.map((q, idx) => `
+                <div class="bg-white dark:bg-darkCard rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 p-6 md:p-8 transition-all hover:shadow-md">
+                    <div class="flex items-start gap-4 mb-6">
+                        <div class="h-8 w-8 bg-slate-100 dark:bg-slate-800 rounded-lg flex items-center justify-center font-bold text-slate-400">
+                            ${idx + 1}
+                        </div>
+                        <h3 class="text-lg md:text-xl font-bold leading-relaxed math-rendered">
+                            ${q.text}
+                        </h3>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mb-6">
+                        ${q.options.map((opt, optIdx) => `
+                            <button onclick="selectOption(${q.id}, ${optIdx})" 
+                                    id="q${q.id}-opt${optIdx}"
+                                    class="option-btn p-4 rounded-xl border-2 border-slate-100 dark:border-slate-800 text-left hover:border-primary hover:bg-blue-50 dark:hover:bg-blue-900/20 font-medium transition-all flex items-center gap-3">
+                                <span class="h-6 w-6 rounded-full border-2 border-slate-200 dark:border-slate-700 flex items-center justify-center text-xs font-bold uppercase">
+                                    ${String.fromCharCode(97 + optIdx)}
+                                </span>
+                                <span class="math-rendered">${opt}</span>
+                            </button>
+                        `).join('')}
+                    </div>
 
-            questionsData.forEach(q => {
-                const selected = document.querySelector(`input[name="${q.id}"]:checked`);
-                let isCorrect = false;
-                let studentAnswer = "Empty";
-                
-                if (selected) {
-                    answeredCount++;
-                    studentAnswer = selected.value;
-                    if (studentAnswer === q.correct) {
-                        score++;
-                        isCorrect = true;
-                    }
-                }
-                
-                answersRecord.push(`${q.id}: ${studentAnswer}`);
-                
-                // إظهار التغذية الراجعة البصرية للطلاب
-                const container = document.getElementById(`container-${q.id}`);
-                container.classList.remove('border-gray-100', 'dark:border-gray-700', 'border-green-500', 'border-red-500');
-                if (selected) {
-                    container.classList.add(isCorrect ? 'border-green-500' : 'border-red-500', 'border-2');
-                } else {
-                    container.classList.add('border-yellow-500', 'border-2'); // لم يتم الحل
-                }
+                    <div class="flex items-center justify-between pt-4 border-t border-slate-50 dark:border-slate-800">
+                        <button onclick="showHint(${idx})" class="text-xs font-bold text-slate-400 hover:text-primary transition-colors flex items-center gap-1">
+                            <i class="fa-solid fa-lightbulb"></i> View Hint
+                        </button>
+                        <span id="status-${q.id}" class="text-[10px] font-black uppercase tracking-widest text-slate-300">Unanswered</span>
+                    </div>
+                </div>
+            `).join('');
+            
+            // رندرة المعادلات فور الحقن
+            if (window.MathJax) MathJax.typeset();
+        }
+
+        function selectOption(qId, optIdx) {
+            userResponses[qId] = optIdx;
+            
+            // تحديث الواجهة البصرية
+            const q = QUESTIONS.find(q => q.id === qId);
+            q.options.forEach((_, i) => {
+                const btn = document.getElementById(`q${qId}-opt${i}`);
+                btn.classList.remove('border-primary', 'bg-blue-50', 'dark:bg-blue-900/20', 'ring-2', 'ring-primary/20');
+                btn.classList.add('border-slate-100', 'dark:border-slate-800');
             });
 
-            if (answeredCount < totalQuestions) {
-                Swal.fire({
-                    title: 'Are you sure?',
-                    text: "You have unanswered questions!",
+            const selectedBtn = document.getElementById(`q${qId}-opt${optIdx}`);
+            selectedBtn.classList.remove('border-slate-100', 'dark:border-slate-800');
+            selectedBtn.classList.add('border-primary', 'bg-blue-50', 'dark:bg-blue-900/20', 'ring-2', 'ring-primary/20');
+
+            document.getElementById(`status-${qId}`).innerText = "Completed";
+            document.getElementById(`status-${qId}`).classList.replace('text-slate-300', 'text-secondary');
+
+            updateProgress();
+        }
+
+        function updateProgress() {
+            const answeredCount = Object.keys(userResponses).length;
+            const pct = Math.round((answeredCount / QUESTIONS.length) * 100);
+            document.getElementById('progressText').innerText = `${pct}%`;
+        }
+
+        function showHint(idx) {
+            Swal.fire({
+                title: 'Physics Concept',
+                html: `<div class="math-rendered text-slate-600 dark:text-slate-400 p-4">${QUESTIONS[idx].hint}</div>`,
+                icon: 'info',
+                confirmButtonColor: '#3b82f6'
+            }).then(() => {
+                if (window.MathJax) MathJax.typeset();
+            });
+        }
+
+        async function submitResults() {
+            if (Object.keys(userResponses).length < QUESTIONS.length) {
+                const confirmed = await Swal.fire({
+                    title: 'Incomplete!',
+                    text: "You haven't answered all questions. Submit anyway?",
                     icon: 'warning',
                     showCancelButton: true,
-                    confirmButtonColor: '#3085d6',
-                    cancelButtonColor: '#d33',
-                    confirmButtonText: 'Yes, submit anyway',
-                    cancelButtonText: 'Return to worksheet'
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        processSubmission(score, totalQuestions, answersRecord);
-                    }
+                    confirmButtonText: 'Yes, Submit',
+                    cancelButtonText: 'Finish Questions',
+                    confirmButtonColor: '#10b981'
                 });
-            } else {
-                processSubmission(score, totalQuestions, answersRecord);
+                if (!confirmed.isConfirmed) return;
             }
-        }
 
-        function processSubmission(score, total, answersRecord) {
-            const percentage = Math.round((score / total) * 100);
-            const answersString = answersRecord.join(", ");
-
-            const payload = {
-                name: currentStudent,
-                score: percentage,
-                topic: CONFIG.topic,
-                answers: answersString
-            };
-
-            // إظهار حالة التحميل
             Swal.fire({
-                title: 'Submitting answers...',
-                text: 'Please wait while syncing your data with the server',
+                title: 'Transmitting Data...',
+                text: 'Calculating score and syncing with Grade 11 database.',
                 allowOutsideClick: false,
-                didOpen: () => {
-                    Swal.showLoading()
-                }
+                didOpen: () => { Swal.showLoading(); }
             });
 
-            // إرسال البيانات إلى Google Apps Script
-            fetch(CONFIG.url, {
-                method: "POST",
-                headers: {
-                    "Content-Type": "text/plain;charset=utf-8"
-                },
+            // حساب النتيجة
+            let score = 0;
+            let details = [];
+            QUESTIONS.forEach(q => {
+                const isCorrect = userResponses[q.id] === q.answer;
+                if (isCorrect) score++;
+                details.push(`Q${q.id}: ${isCorrect ? 'Correct' : 'Incorrect'}`);
+            });
+
+            const finalPct = Math.round((score / QUESTIONS.length) * 100);
+            
+            // إرسال البيانات
+            const payload = {
+                name: currentUser,
+                topic: CONFIG.topic,
+                score: finalPct,
+                answers: details.join(", ")
+            };
+
+            fetch(CONFIG.scriptURL, {
+                method: 'POST',
+                mode: 'no-cors', // Essential for GAS
+                headers: { 'Content-Type': 'text/plain;charset=utf-8' },
                 body: JSON.stringify(payload)
             })
-            .then(response => {
-                // نظراً لاستخدام text/plain مع Apps Script قد لا نستلم استجابة مهيكلة واضحة، لذا نعتمد على نجاح الطلب
-                Swal.fire({
-                    title: 'Submitted Successfully! 🚀',
-                    html: `You scored: <b>${percentage}%</b><br>Correct Answers: ${score} out of ${total}`,
-                    icon: percentage >= 80 ? 'success' : (percentage >= 50 ? 'info' : 'warning'),
-                    confirmButtonText: 'Close',
-                    confirmButtonColor: '#2563eb'
-                });
-                
-                // تعطيل الأزرار بعد الإرسال
-                const inputs = document.querySelectorAll('input[type="radio"]');
-                inputs.forEach(input => input.disabled = true);
-                document.querySelector('button[onclick="submitWorksheet()"]').style.display = 'none';
+            .then(() => {
+                document.getElementById('quizScreen').classList.add('hidden');
+                document.getElementById('resultsScreen').classList.remove('hidden');
+                document.getElementById('finalScore').innerText = `${finalPct}%`;
+                document.getElementById('resultName').innerText = currentUser;
+                Swal.close();
             })
-            .catch(error => {
-                console.error('Error:', error);
+            .catch(err => {
+                console.error(err);
                 Swal.fire({
-                    title: 'Connection Error!',
-                    text: 'Could not submit results. Please try again or check your internet connection.',
-                    icon: 'error',
-                    confirmButtonText: 'OK',
-                    confirmButtonColor: '#ef4444'
+                    title: 'Sync Error',
+                    text: 'Could not submit results. Please screenshot your score.',
+                    icon: 'error'
                 });
             });
         }
@@ -548,7 +450,6 @@
             }
         }
 
-        // تفحص الوضع المفضل عند التحميل
         if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
             document.documentElement.classList.add('dark');
             document.getElementById('themeIcon').classList.remove('fa-moon');

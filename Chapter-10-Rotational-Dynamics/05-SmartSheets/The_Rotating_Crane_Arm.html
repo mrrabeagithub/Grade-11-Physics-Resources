@@ -37,7 +37,9 @@
                     colors: {
                         darkBg: '#0f172a',
                         darkCard: '#1e293b',
-                        darkText: '#cbd5e1'
+                        darkText: '#cbd5e1',
+                        primary: '#3b82f6',
+                        secondary: '#10b981'
                     }
                 }
             }
@@ -45,439 +47,371 @@
     </script>
 
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
-        body {
-            font-family: 'Inter', sans-serif;
-            transition: background-color 0.3s, color 0.3s;
+        .option-btn {
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
         }
-        .physics-text {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            direction: ltr;
-            text-align: left;
+        .option-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
         }
-        
-        /* Print settings */
+        .math-rendered {
+            font-size: 1.1em;
+        }
         @media print {
-            .no-print { display: none !important; }
-            body { background-color: white !important; color: black !important; }
-            .print-border { border: 1px solid #ccc !important; box-shadow: none !important; }
-            .dark-mode-override { background-color: white !important; color: black !important; }
+            .no-print { display: none; }
         }
     </style>
 </head>
-<body class="bg-gray-50 text-gray-800 dark:bg-darkBg dark:text-darkText min-h-screen">
+<body class="bg-slate-50 dark:bg-darkBg text-slate-800 dark:text-darkText transition-colors duration-300 min-h-screen">
 
-    <!-- Login Screen -->
-    <div id="loginScreen" class="flex items-center justify-center min-h-screen bg-indigo-600 dark:bg-slate-900 transition-colors duration-300">
-        <div class="bg-white dark:bg-darkCard p-8 rounded-2xl shadow-2xl w-full max-w-md text-center transform transition-all">
-            <i class="fas fa-truck-pickup text-5xl text-indigo-500 dark:text-indigo-400 mb-4 animate-bounce"></i>
-            <h1 class="text-2xl font-bold mb-2 text-gray-800 dark:text-white">Smart-Sheet Physics</h1>
-            <p class="text-gray-500 dark:text-gray-400 mb-6">Grade 11 - The Rotating Crane Arm</p>
-            
-            <input type="password" id="accessCode" placeholder="Enter your Access Code" 
-                class="w-full px-4 py-3 border-2 border-gray-200 dark:border-gray-600 rounded-lg mb-4 text-center text-xl tracking-widest focus:border-indigo-500 focus:outline-none dark:bg-slate-800 dark:text-white transition-colors"
-                onkeypress="if(event.key === 'Enter') checkLogin()">
-            
-            <button onclick="checkLogin()" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-4 rounded-lg transition-colors duration-300 shadow-lg">
-                Login <i class="fas fa-sign-in-alt ml-2"></i>
-            </button>
-        </div>
-    </div>
-
-    <!-- Worksheet Screen -->
-    <div id="worksheetScreen" class="hidden max-w-4xl mx-auto p-4 md:p-8">
-        
-        <!-- Top Control Bar -->
-        <div class="flex flex-col md:flex-row justify-between items-center bg-white dark:bg-darkCard p-4 rounded-xl shadow-md mb-6 print-border no-print">
-            <div class="flex items-center mb-4 md:mb-0">
-                <div class="bg-indigo-100 dark:bg-indigo-900 text-indigo-800 dark:text-indigo-200 p-3 rounded-full mr-4 ml-4">
-                    <i class="fas fa-user-graduate text-xl"></i>
+    <!-- Sticky Header -->
+    <header class="bg-white dark:bg-darkCard border-b border-slate-200 dark:border-slate-700 p-4 sticky top-0 z-50 shadow-sm no-print">
+        <div class="max-w-4xl mx-auto flex justify-between items-center">
+            <div class="flex items-center gap-3">
+                <div class="bg-primary p-2 rounded-lg text-white">
+                    <i class="fa-solid fa-tower-broadcast"></i>
                 </div>
                 <div>
-                    <p class="text-sm text-gray-500 dark:text-gray-400">Student</p>
-                    <p id="studentNameDisplay" class="font-bold text-lg text-gray-800 dark:text-white" dir="rtl">Name Here</p>
+                    <h1 class="font-bold text-lg leading-tight">The Rotating Crane Arm</h1>
+                    <p class="text-xs text-slate-500 dark:text-slate-400">Physics - Grade 11 - Statics & Dynamics</p>
                 </div>
             </div>
-            
-            <div class="flex space-x-3">
-                <button onclick="toggleDarkMode()" class="bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 text-gray-800 dark:text-white p-3 rounded-lg transition-colors" title="Toggle Dark/Light Mode">
-                    <i id="themeIcon" class="fas fa-moon"></i>
+            <div class="flex items-center gap-2">
+                <button onclick="toggleDarkMode()" class="p-2 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
+                    <i id="themeIcon" class="fa-solid fa-moon"></i>
                 </button>
-                <button onclick="window.print()" class="bg-green-100 dark:bg-green-900 hover:bg-green-200 dark:hover:bg-green-800 text-green-700 dark:text-green-300 p-3 rounded-lg transition-colors" title="Print">
-                    <i class="fas fa-print"></i>
+                <button id="logoutBtn" onclick="location.reload()" class="hidden p-2 rounded-full hover:bg-red-50 text-red-500 transition-colors">
+                    <i class="fa-solid fa-right-from-bracket"></i>
                 </button>
             </div>
         </div>
+    </header>
 
-        <!-- Worksheet Header & Context -->
-        <div class="bg-white dark:bg-darkCard p-6 rounded-xl shadow-md mb-6 print-border">
-            <h2 class="text-2xl font-bold mb-2 text-center text-indigo-600 dark:text-indigo-400">The Rotating Crane Arm</h2>
-            <p class="text-center text-gray-600 dark:text-gray-400 mb-4">Grade 11 Scientific | Chapter 10: Rotational Dynamics</p>
-            
-            <div class="bg-indigo-50 dark:bg-slate-800 p-5 rounded-lg border-l-4 border-indigo-500 physics-text text-sm md:text-base">
-                <h3 class="font-bold mb-3 text-gray-800 dark:text-gray-200"><i class="fas fa-clipboard-list mr-2 text-indigo-500"></i>Problem Context & Given Data</h3>
-                <p class="mb-2 text-gray-700 dark:text-gray-300">
-                    A homogeneous rigid rod OB of mass <strong>$M=3\text{ kg}$</strong> and length <strong>$L=2\text{ m}$</strong> can rotate without friction in a vertical plane around a fixed horizontal axis ($\Delta$) passing through its extremity O.
-                </p>
-                <ul class="list-disc list-inside text-gray-700 dark:text-gray-300 space-y-1 mt-3 bg-white dark:bg-slate-700 p-4 rounded shadow-inner">
-                    <li><strong>Gravity:</strong> $g=10\text{ m/s}^{2}$</li>
-                    <li><strong>Moment of Inertia (Rod at end):</strong> $I_{rod}=\frac{1}{3}ML^{2}$</li>
-                    <li><strong>Sign Convention:</strong> Counter-clockwise (CCW) is the positive $(+)$ direction of rotation.</li>
-                </ul>
+    <main class="max-w-4xl mx-auto p-4 md:p-8">
+        <!-- Login Section -->
+        <section id="loginScreen" class="bg-white dark:bg-darkCard rounded-2xl shadow-xl border border-slate-200 dark:border-slate-700 p-8 max-w-md mx-auto mt-12 transition-all no-print">
+            <div class="text-center mb-8">
+                <h2 class="text-2xl font-black mb-2">Student Access</h2>
+                <p class="text-slate-500 dark:text-slate-400">Enter your 4-digit code to begin the analysis</p>
             </div>
-        </div>
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-sm font-bold mb-2 ml-1">Access Code</label>
+                    <input type="password" id="accessCode" maxlength="4" placeholder="••••" 
+                           class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl p-4 text-center text-2xl tracking-[1em] focus:ring-2 focus:ring-primary focus:outline-none transition-all">
+                </div>
+                <button onclick="login()" class="w-full bg-primary hover:bg-blue-600 text-white font-bold py-4 rounded-xl shadow-lg transition-all active:scale-[0.98]">
+                    Verify Student Identity
+                </button>
+            </div>
+        </section>
 
-        <!-- Questions Container -->
-        <div id="questionsContainer" class="space-y-6">
-            <!-- Questions injected via JS -->
-        </div>
+        <!-- Quiz Screen -->
+        <section id="quizScreen" class="hidden space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+            <!-- Student Header -->
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center bg-white dark:bg-darkCard p-4 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 gap-4 no-print">
+                <div class="flex items-center gap-3">
+                    <div class="h-10 w-10 bg-blue-100 dark:bg-blue-900 rounded-full flex items-center justify-center text-primary font-bold">
+                        <i class="fa-solid fa-user-graduate"></i>
+                    </div>
+                    <div class="text-left" dir="auto">
+                        <span class="block text-xs text-slate-500 dark:text-slate-400">Authenticated Student</span>
+                        <span id="studentNameDisplay" class="font-bold">--</span>
+                    </div>
+                </div>
+                <div class="flex gap-2 w-full md:w-auto">
+                    <div class="flex-1 md:w-32 bg-slate-50 dark:bg-slate-900 p-2 rounded-lg text-center border border-slate-100 dark:border-slate-800">
+                        <span class="block text-[10px] text-slate-400 uppercase font-black tracking-widest">Progress</span>
+                        <span id="progressText" class="font-mono font-bold">0%</span>
+                    </div>
+                    <button onclick="submitResults()" class="flex-1 md:w-32 bg-secondary hover:bg-emerald-600 text-white font-bold rounded-lg shadow-md transition-all active:scale-[0.98]">
+                        Submit Final
+                    </button>
+                </div>
+            </div>
 
-        <!-- Submit Button -->
-        <div class="mt-8 text-center no-print">
-            <button onclick="submitWorksheet()" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-4 px-12 rounded-full text-xl shadow-xl transition-transform transform hover:scale-105">
-                Submit Answers <i class="fas fa-paper-plane ml-2"></i>
-            </button>
-        </div>
+            <!-- Questions Container -->
+            <div id="questionsContainer" class="space-y-12 pb-20">
+                <!-- Dynamically Injected -->
+            </div>
+        </section>
 
-    </div>
+        <!-- Results Screen -->
+        <section id="resultsScreen" class="hidden space-y-8 text-center py-12 animate-in zoom-in duration-500">
+            <div class="bg-white dark:bg-darkCard rounded-3xl shadow-2xl p-12 max-w-lg mx-auto border-t-8 border-primary relative overflow-hidden">
+                <div class="absolute top-0 right-0 p-4 opacity-10 text-8xl">
+                    <i class="fa-solid fa-check-double"></i>
+                </div>
+                <h2 class="text-3xl font-black mb-4 text-primary">Analysis Complete</h2>
+                <p class="text-slate-500 dark:text-slate-400 mb-8">Data has been transmitted to the gradebook.</p>
+                
+                <div class="inline-block p-8 bg-slate-50 dark:bg-slate-900 rounded-full border-4 border-white dark:border-slate-800 shadow-inner mb-8">
+                    <span id="finalScore" class="text-6xl font-black text-slate-800 dark:text-white">0%</span>
+                </div>
+
+                <div class="space-y-4 mb-8">
+                    <div class="flex justify-between p-3 bg-slate-50 dark:bg-slate-900 rounded-xl">
+                        <span class="text-slate-500">Student:</span>
+                        <span id="resultName" class="font-bold" dir="auto">--</span>
+                    </div>
+                </div>
+
+                <div class="flex gap-4 no-print">
+                    <button onclick="window.print()" class="flex-1 bg-slate-800 text-white font-bold py-3 rounded-xl hover:bg-slate-700 transition-all">
+                        <i class="fa-solid fa-print mr-2"></i>Export PDF
+                    </button>
+                    <button onclick="location.reload()" class="flex-1 bg-primary text-white font-bold py-3 rounded-xl hover:bg-blue-600 transition-all">
+                        Exit Session
+                    </button>
+                </div>
+            </div>
+        </section>
+    </main>
 
     <script>
-        // Class Configuration (Grade 11)
+        // ==========================================
+        // CONFIGURATION & DATABASE (Grade 11)
+        // ==========================================
         const CONFIG = {
-            topic: "The Rotating Crane Arm (G11)",
-            url: "https://script.google.com/macros/s/AKfycbzvPyhAatLMEdH07OnVd2Qq6YiEDfx0GTrC_YQWaFO-EuZSidqhtVsu46x0RmrykxJJ8w/exec",
+            grade: "G11",
+            topic: "The Rotating Crane Arm",
+            // UPDATED ENDPOINT
+            scriptURL: "https://script.google.com/macros/s/AKfycbwi6mohSrHkJ2iuQuLvg-EgEjYuAdrtNRyI9NgtljuNdgfzjUR-gKTvO7O889fNguAiiQ/exec",
             students: {
-                "احمد / محمد / الخالد": "3580",
-                "احمد / هيثم / سبلبل": "7732",
-                "امير خالد / وليد / مهتدي": "5294",
-                "انطون / عبد الله / مشحم": "8738",
-                "بسام / محمد / طالب": "5644",
-                "زكريا / مصطفى / مراد": "7808",
-                "عبد العزيز / ناصر / عساف": "8893",
-                "عمر / كمال / باليقه": "8900",
-                "كامل / احمد / رنو": "7749",
-                "محمد علي / محمد / الرفاعي": "8073",
-                "ميار / حسام الدين / ديري": "3098",
-                "هادي / عمر / قره علي": "8597",
-                "هاني / عمر / ابراهيم": "6722",
-                "يحيى / زيد / حمزة": "7439",
-                "يحيى / ماهر / مراد": "3655",
-                "يوسف / منير / ابراهيم": "6634"
-            },
-            special_roles: {
                 "Teacher": "0000",
-                "Tutor": "1111"
+                "Tutor": "1111",
+                "احمد / محمد / الخالد": "3580", "احمد / هيثم / سبلبل": "7732", "امير خالد / وليد / مهتدي": "5294", 
+                "انطون / عبد الله / مشحم": "8738", "بسام / محمد / طالب": "5644", "زكريا / مصطفى / مراد": "7808", 
+                "عبد العزيز / ناصر / عساف": "8893", "عمر / كمال / باليقه": "8900", "كامل / احمد / رنو": "7749", 
+                "محمد علي / محمد / الرفاعي": "8073", "ميار / حسام الدين / ديري": "3098", "هادي / عمر / قره علي": "8597", 
+                "هاني / عمر / ابراهيم": "6722", "يحيى / زيد / حمزة": "7439", "يحيى / ماهر / مراد": "3655", 
+                "يوسف / منير / ابراهيم": "6634"
             }
         };
 
-        const codeToName = {};
-        for (const [name, code] of Object.entries(CONFIG.students)) {
-            codeToName[code] = name;
-        }
-        for (const [name, code] of Object.entries(CONFIG.special_roles)) {
-            codeToName[code] = name;
-        }
-
-        let currentStudent = "";
-
-        // Questions Data based on "The Rotating Crane Arm.pdf"
-        const questionsData = [
+        const QUESTIONS = [
             {
-                id: "Q1",
-                section: "Part 1: Static Equilibrium",
-                text: "Initially, the rod is maintained at rest in a perfectly horizontal position by a vertical, massless cable attached to its right end B. Which of the following correctly identifies the three external forces acting on the rod OB and their points of application?",
-                options: {
-                    "A": "Reaction $\\vec{R}$ at O; Weight $\\vec{W}$ at O; Tension $\\vec{T}$ at B.",
-                    "B": "Reaction $\\vec{R}$ at O; Weight $\\vec{W}$ at the center (1 m from O); Tension $\\vec{T}$ at B (2 m from O).",
-                    "C": "Reaction $\\vec{R}$ at the center; Weight $\\vec{W}$ at O; Tension $\\vec{T}$ at B.",
-                    "D": "Weight $\\vec{W}$ at the center; Tension $\\vec{T}$ at O; Tension $\\vec{T}$ at B."
-                },
-                correct: "B",
-                difficulty: "easy",
-                hint: "Gravity acts on the center of mass of a homogeneous rod. The hinge is at O, and the cable is at the far end B."
+                id: 1,
+                text: "A crane arm of length $L$ is pivoted at its base. If a load $W$ is hanging at the very end, what is the torque $\\tau$ about the pivot if the arm is horizontal?",
+                options: [
+                    "$\\tau = W \\cdot L$",
+                    "$\\tau = W \\cdot L / 2$",
+                    "$\\tau = 0$",
+                    "$\\tau = W \\cdot L \\cdot \\sin(45^\\circ)$"
+                ],
+                answer: 0,
+                hint: "Torque is force times perpendicular distance. Since it's horizontal, the distance is $L$."
             },
             {
-                id: "Q2",
-                section: "Part 1: Static Equilibrium",
-                text: "What is the algebraic moment of the weight of the rod ($\\tau_W$) with respect to the axis ($\\Delta$) passing through O? (Remember: CCW is positive).",
-                options: {
-                    "A": "$+30 \\text{ N}\\cdot\\text{m}$",
-                    "B": "$-60 \\text{ N}\\cdot\\text{m}$",
-                    "C": "$-30 \\text{ N}\\cdot\\text{m}$",
-                    "D": "$0 \\text{ N}\\cdot\\text{m}$"
-                },
-                correct: "C",
-                difficulty: "medium",
-                hint: "Moment = Force $\\times$ Distance. $W = M \\times g = 3 \\times 10 = 30\\text{ N}$. The distance from O to the center is $L/2 = 1\\text{ m}$. Since weight pulls the rod downwards (Clockwise), the sign must be negative."
+                id: 2,
+                text: "To balance the crane arm, a counterweight is used. This is an application of which principle?",
+                options: [
+                    "Newton's First Law",
+                    "Conservation of Energy",
+                    "Principle of Moments (Equilibrium)",
+                    "Pascal's Principle"
+                ],
+                answer: 2,
+                hint: "In equilibrium, the sum of clockwise torques must equal the sum of counter-clockwise torques."
             },
             {
-                id: "Q3",
-                section: "Part 1: Static Equilibrium",
-                text: "By applying the condition of rotational equilibrium ($\\Sigma M = 0$), deduce the magnitude of the upward tension $T$ required to keep the rod perfectly horizontal.",
-                options: {
-                    "A": "$15 \\text{ N}$",
-                    "B": "$30 \\text{ N}$",
-                    "C": "$45 \\text{ N}$",
-                    "D": "$60 \\text{ N}$"
-                },
-                correct: "A",
-                difficulty: "medium",
-                hint: "Set the sum of torques to zero: $\\tau_R + \\tau_W + \\tau_T = 0$. Reaction at O has 0 torque. $-30 + T \\times 2 = 0$. Solve for $T$."
+                id: 3,
+                text: "The crane starts to rotate with an angular acceleration $\\alpha$. What physical quantity determines how much torque is needed for this acceleration?",
+                options: [
+                    "Linear Velocity",
+                    "Mass only",
+                    "Moment of Inertia ($I$)",
+                    "Center of Gravity"
+                ],
+                answer: 2,
+                hint: "$\\tau = I \\alpha$."
             },
             {
-                id: "Q4",
-                section: "Part 2: Rotational Dynamics",
-                text: "The cable is suddenly cut. As the rod drops and rotates around ($\\Delta$), do the points O (the hinge) and B (the tip) have the same linear speed and the same angular speed?",
-                options: {
-                    "A": "They have the same linear speed AND the same angular speed.",
-                    "B": "They have different linear speeds AND different angular speeds.",
-                    "C": "They have the same linear speed, but different angular speeds.",
-                    "D": "They have different linear speeds, but the SAME angular speed."
-                },
-                correct: "D",
-                difficulty: "easy",
-                hint: "All points on a rigid rotating body sweep through the same angle in the same time (same $\\omega$), but points further from the axis travel a larger distance (different $v = \\omega r$)."
+                id: 4,
+                text: "If the load $W$ is moved closer to the pivot (center of the crane), the torque produced by the load:",
+                options: [
+                    "Increases",
+                    "Decreases",
+                    "Stays the same",
+                    "Reverses direction"
+                ],
+                answer: 1,
+                hint: "Torque depends on distance ($r$) from the pivot. Shorter $r$ means smaller torque."
             },
             {
-                id: "Q5",
-                section: "Part 2: Rotational Dynamics",
-                text: "A small heavy block of mass $m=1\\text{ kg}$ is now firmly attached to the end B of the rod. Calculate the new total moment of inertia $I_{total}$ of the system (Rod + Block) with respect to the axis ($\\Delta$).",
-                options: {
-                    "A": "$4 \\text{ kg}\\cdot\\text{m}^2$",
-                    "B": "$6 \\text{ kg}\\cdot\\text{m}^2$",
-                    "C": "$8 \\text{ kg}\\cdot\\text{m}^2$",
-                    "D": "$10 \\text{ kg}\\cdot\\text{m}^2$"
-                },
-                correct: "C",
-                difficulty: "hard",
-                hint: "Calculate $I_{rod} = \\frac{1}{3}ML^2 = \\frac{1}{3}(3)(2^2)$. Then calculate $I_{block} = mr^2 = (1)(2^2)$. Add them together."
-            },
-            {
-                id: "Q6",
-                section: "Part 2: Rotational Dynamics",
-                text: "Exactly at the instant the cable is cut (when the Rod + Block system is still perfectly horizontal), what is the Net Torque ($\\Sigma M$) acting on the system? (Remember: CCW is positive).",
-                options: {
-                    "A": "$-50 \\text{ N}\\cdot\\text{m}$",
-                    "B": "$-30 \\text{ N}\\cdot\\text{m}$",
-                    "C": "$+50 \\text{ N}\\cdot\\text{m}$",
-                    "D": "$-20 \\text{ N}\\cdot\\text{m}$"
-                },
-                correct: "A",
-                difficulty: "hard",
-                hint: "The net torque is the sum of the torque from the rod's weight and the block's weight. $\\tau_{net} = -(M_{rod} \\cdot g \\cdot 1) - (m_{block} \\cdot g \\cdot 2)$. Both cause Clockwise (negative) rotation."
+                id: 5,
+                text: "When the crane lifts a load at a constant speed, the net torque on the rotating system is:",
+                options: [
+                    "Maximum",
+                    "Constant and non-zero",
+                    "Zero",
+                    "Infinite"
+                ],
+                answer: 2,
+                hint: "Constant speed means zero angular acceleration, so net torque is zero."
             }
         ];
 
-        function renderQuestions() {
-            const container = document.getElementById('questionsContainer');
-            container.innerHTML = '';
+        // ==========================================
+        // CORE APP LOGIC
+        // ==========================================
+        let currentUser = null;
+        let userResponses = {};
 
-            let currentSection = "";
+        function login() {
+            const code = document.getElementById('accessCode').value.trim();
+            const studentName = Object.keys(CONFIG.students).find(key => CONFIG.students[key] === code);
 
-            questionsData.forEach((q, index) => {
+            if (studentName) {
+                currentUser = studentName;
+                document.getElementById('loginScreen').classList.add('hidden');
+                document.getElementById('quizScreen').classList.remove('hidden');
+                document.getElementById('logoutBtn').classList.remove('hidden');
+                document.getElementById('studentNameDisplay').innerText = studentName;
+                initQuiz();
                 
-                // Add section headers if it changes
-                if(q.section !== currentSection) {
-                    currentSection = q.section;
-                    container.innerHTML += `
-                        <div class="mt-8 mb-4 border-b-2 border-indigo-200 dark:border-indigo-800 pb-2 print-border">
-                            <h3 class="text-xl font-bold text-indigo-700 dark:text-indigo-300">
-                                <i class="fas fa-layer-group mr-2"></i>${currentSection}
-                            </h3>
-                        </div>
-                    `;
-                }
-
-                // Badge styling
-                let badgeClass = "";
-                let badgeText = "";
-                if (q.difficulty === "easy") {
-                    badgeClass = "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200";
-                    badgeText = "Concept";
-                } else if (q.difficulty === "medium") {
-                    badgeClass = "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200";
-                    badgeText = "Calculation";
-                } else {
-                    badgeClass = "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200";
-                    badgeText = "Advanced";
-                }
-
-                let optionsHTML = '';
-                for (const [key, val] of Object.entries(q.options)) {
-                    optionsHTML += `
-                        <label class="flex items-center p-3 border rounded-lg cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700 dark:border-gray-600 transition-colors physics-text">
-                            <input type="radio" name="${q.id}" value="${key}" class="w-5 h-5 text-indigo-600 ml-4 focus:ring-indigo-500">
-                            <span class="font-bold mr-3 text-indigo-600 dark:text-indigo-400">${key})</span>
-                            <span class="text-gray-700 dark:text-gray-300">${val}</span>
-                        </label>
-                    `;
-                }
-
-                const questionHTML = `
-                    <div class="bg-white dark:bg-darkCard p-6 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 print-border" id="container-${q.id}">
-                        <div class="flex justify-between items-start mb-4">
-                            <div class="flex-1 physics-text">
-                                <h4 class="text-lg font-bold text-gray-800 dark:text-white mb-2 leading-relaxed">
-                                    <span class="text-indigo-600 dark:text-indigo-400 mr-2">Q${index + 1}.</span> ${q.text}
-                                </h4>
-                            </div>
-                            <span class="no-print text-xs font-semibold px-3 py-1 rounded-full ${badgeClass} ml-4 whitespace-nowrap border border-current opacity-80">
-                                ${badgeText}
-                            </span>
-                        </div>
-                        
-                        <div class="grid grid-cols-1 gap-3 mb-4">
-                            ${optionsHTML}
-                        </div>
-
-                        <div class="mt-4 no-print text-right">
-                            <button onclick="toggleHint('${q.id}')" class="text-sm text-indigo-500 hover:text-indigo-700 dark:text-indigo-400 dark:hover:text-indigo-300 flex items-center inline-block transition-colors">
-                                <i class="fas fa-lightbulb mr-1"></i> Show/Hide Hint
-                            </button>
-                            <div id="hint-${q.id}" class="hidden mt-3 p-4 bg-amber-50 dark:bg-amber-900/20 text-amber-800 dark:text-amber-200 rounded-lg text-sm physics-text border-l-4 border-amber-400 shadow-sm">
-                                <i class="fas fa-info-circle mr-2"></i> <strong>Hint:</strong> ${q.hint}
-                            </div>
-                        </div>
-                    </div>
-                `;
-                container.innerHTML += questionHTML;
-            });
-
-            if (window.MathJax) {
-                MathJax.typesetPromise();
-            }
-        }
-
-        function toggleHint(id) {
-            const hintDiv = document.getElementById(`hint-${id}`);
-            hintDiv.classList.toggle('hidden');
-        }
-
-        function checkLogin() {
-            const codeInput = document.getElementById('accessCode').value.trim();
-            
-            if (codeToName[codeInput]) {
-                currentStudent = codeToName[codeInput];
-                document.getElementById('studentNameDisplay').innerText = currentStudent;
-                
-                document.getElementById('loginScreen').style.opacity = '0';
-                setTimeout(() => {
-                    document.getElementById('loginScreen').style.display = 'none';
-                    document.getElementById('worksheetScreen').classList.remove('hidden');
-                    renderQuestions();
-                    
-                    Swal.fire({
-                        title: 'Access Granted!',
-                        text: `Welcome, ${currentStudent}`,
-                        icon: 'success',
-                        confirmButtonText: 'Start Mission',
-                        confirmButtonColor: '#4f46e5'
-                    });
-                }, 300);
+                Swal.fire({
+                    title: 'Access Granted',
+                    text: `Welcome, ${studentName.split(' / ')[0]}. Ready for crane arm analysis?`,
+                    icon: 'success',
+                    timer: 2000,
+                    showConfirmButton: false
+                });
             } else {
                 Swal.fire({
-                    title: 'Access Denied',
-                    text: 'Invalid access code. Please verify and try again.',
+                    title: 'Invalid Code',
+                    text: 'The access code provided is not in our database.',
                     icon: 'error',
-                    confirmButtonText: 'Retry',
-                    confirmButtonColor: '#ef4444'
+                    confirmButtonColor: '#3b82f6'
                 });
             }
         }
 
-        function submitWorksheet() {
-            let score = 0;
-            let totalQuestions = questionsData.length;
-            let answeredCount = 0;
-            let answersRecord = [];
+        function initQuiz() {
+            const container = document.getElementById('questionsContainer');
+            container.innerHTML = QUESTIONS.map((q, idx) => `
+                <div class="bg-white dark:bg-darkCard rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 p-6 md:p-8 transition-all hover:shadow-md">
+                    <div class="flex items-start gap-4 mb-6">
+                        <div class="h-8 w-8 bg-slate-100 dark:bg-slate-800 rounded-lg flex items-center justify-center font-bold text-slate-400">
+                            ${idx + 1}
+                        </div>
+                        <h3 class="text-lg md:text-xl font-bold leading-relaxed math-rendered">
+                            ${q.text}
+                        </h3>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mb-6">
+                        ${q.options.map((opt, optIdx) => `
+                            <button onclick="selectOption(${q.id}, ${optIdx})" 
+                                    id="q${q.id}-opt${optIdx}"
+                                    class="option-btn p-4 rounded-xl border-2 border-slate-100 dark:border-slate-800 text-left hover:border-primary hover:bg-blue-50 dark:hover:bg-blue-900/20 font-medium transition-all flex items-center gap-3">
+                                <span class="h-6 w-6 rounded-full border-2 border-slate-200 dark:border-slate-700 flex items-center justify-center text-xs font-bold uppercase">
+                                    ${String.fromCharCode(97 + optIdx)}
+                                </span>
+                                <span class="math-rendered">${opt}</span>
+                            </button>
+                        `).join('')}
+                    </div>
 
-            questionsData.forEach(q => {
-                const selected = document.querySelector(`input[name="${q.id}"]:checked`);
-                let isCorrect = false;
-                let studentAnswer = "Empty";
-                
-                if (selected) {
-                    answeredCount++;
-                    studentAnswer = selected.value;
-                    if (studentAnswer === q.correct) {
-                        score++;
-                        isCorrect = true;
-                    }
-                }
-                
-                answersRecord.push(`${q.id}: ${studentAnswer}`);
-                
-                const container = document.getElementById(`container-${q.id}`);
-                container.classList.remove('border-gray-100', 'dark:border-gray-700', 'border-green-500', 'border-red-500', 'border-yellow-500');
-                if (selected) {
-                    container.classList.add(isCorrect ? 'border-green-500' : 'border-red-500', 'border-2');
-                } else {
-                    container.classList.add('border-yellow-500', 'border-2');
-                }
+                    <div class="flex items-center justify-between pt-4 border-t border-slate-50 dark:border-slate-800">
+                        <button onclick="showHint(${idx})" class="text-xs font-bold text-slate-400 hover:text-primary transition-colors flex items-center gap-1">
+                            <i class="fa-solid fa-lightbulb"></i> View Hint
+                        </button>
+                        <span id="status-${q.id}" class="text-[10px] font-black uppercase tracking-widest text-slate-300">Status: Pending</span>
+                    </div>
+                </div>
+            `).join('');
+            
+            if (window.MathJax) MathJax.typeset();
+        }
+
+        function selectOption(qId, optIdx) {
+            userResponses[qId] = optIdx;
+            
+            const q = QUESTIONS.find(q => q.id === qId);
+            q.options.forEach((_, i) => {
+                const btn = document.getElementById(`q${qId}-opt${i}`);
+                btn.classList.remove('border-primary', 'bg-blue-50', 'dark:bg-blue-900/20', 'ring-2', 'ring-primary/20');
+                btn.classList.add('border-slate-100', 'dark:border-slate-800');
             });
 
-            if (answeredCount < totalQuestions) {
-                Swal.fire({
-                    title: 'Incomplete Mission',
-                    text: "You still have unanswered questions!",
+            const selectedBtn = document.getElementById(`q${qId}-opt${optIdx}`);
+            selectedBtn.classList.remove('border-slate-100', 'dark:border-slate-800');
+            selectedBtn.classList.add('border-primary', 'bg-blue-50', 'dark:bg-blue-900/20', 'ring-2', 'ring-primary/20');
+
+            document.getElementById(`status-${qId}`).innerText = "Status: Locked";
+            document.getElementById(`status-${qId}`).classList.replace('text-slate-300', 'text-secondary');
+
+            updateProgress();
+        }
+
+        function updateProgress() {
+            const answeredCount = Object.keys(userResponses).length;
+            const pct = Math.round((answeredCount / QUESTIONS.length) * 100);
+            document.getElementById('progressText').innerText = `${pct}%`;
+        }
+
+        function showHint(idx) {
+            Swal.fire({
+                title: 'Physics Concept',
+                html: `<div class="math-rendered text-slate-600 dark:text-slate-400 p-4">${QUESTIONS[idx].hint}</div>`,
+                icon: 'info',
+                confirmButtonColor: '#3b82f6'
+            }).then(() => { if (window.MathJax) MathJax.typeset(); });
+        }
+
+        async function submitResults() {
+            if (Object.keys(userResponses).length < QUESTIONS.length) {
+                const check = await Swal.fire({
+                    title: 'Incomplete Submission',
+                    text: "You haven't answered all questions. Submit anyway?",
                     icon: 'warning',
                     showCancelButton: true,
-                    confirmButtonColor: '#4f46e5',
-                    cancelButtonColor: '#64748b',
-                    confirmButtonText: 'Submit Anyway',
-                    cancelButtonText: 'Keep Working'
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        processSubmission(score, totalQuestions, answersRecord);
-                    }
+                    confirmButtonText: 'Submit Now',
+                    cancelButtonText: 'Go Back',
+                    confirmButtonColor: '#10b981'
                 });
-            } else {
-                processSubmission(score, totalQuestions, answersRecord);
+                if (!check.isConfirmed) return;
             }
-        }
-
-        function processSubmission(score, total, answersRecord) {
-            const percentage = Math.round((score / total) * 100);
-            const answersString = answersRecord.join(", ");
-
-            const payload = {
-                name: currentStudent,
-                score: percentage,
-                topic: CONFIG.topic,
-                answers: answersString
-            };
 
             Swal.fire({
-                title: 'Transmitting Data...',
-                text: 'Syncing your results with the Teacher\'s terminal.',
+                title: 'Syncing Data...',
+                text: 'Calculating telemetry and updating gradebook.',
                 allowOutsideClick: false,
-                didOpen: () => {
-                    Swal.showLoading()
-                }
+                didOpen: () => { Swal.showLoading(); }
             });
 
-            fetch(CONFIG.url, {
-                method: "POST",
-                headers: {
-                    "Content-Type": "text/plain;charset=utf-8"
-                },
+            let score = 0;
+            let details = [];
+            QUESTIONS.forEach(q => {
+                const isCorrect = userResponses[q.id] === q.answer;
+                if (isCorrect) score++;
+                details.push(`Q${q.id}: ${isCorrect ? 'Correct' : 'Incorrect'}`);
+            });
+
+            const finalPct = Math.round((score / QUESTIONS.length) * 100);
+            
+            const payload = {
+                name: currentUser,
+                topic: CONFIG.topic,
+                score: finalPct,
+                answers: details.join(", ")
+            };
+
+            fetch(CONFIG.scriptURL, {
+                method: 'POST',
+                mode: 'no-cors',
+                headers: { 'Content-Type': 'text/plain;charset=utf-8' },
                 body: JSON.stringify(payload)
             })
-            .then(response => {
-                Swal.fire({
-                    title: 'Transmission Successful! 🚀',
-                    html: `Final Score: <b>${percentage}%</b><br>Correct Checks: ${score} out of ${total}`,
-                    icon: percentage >= 80 ? 'success' : (percentage >= 50 ? 'info' : 'warning'),
-                    confirmButtonText: 'Acknowledge',
-                    confirmButtonColor: '#4f46e5'
-                });
-                
-                const inputs = document.querySelectorAll('input[type="radio"]');
-                inputs.forEach(input => input.disabled = true);
-                document.querySelector('button[onclick="submitWorksheet()"]').style.display = 'none';
+            .then(() => {
+                document.getElementById('quizScreen').classList.add('hidden');
+                document.getElementById('resultsScreen').classList.remove('hidden');
+                document.getElementById('finalScore').innerText = `${finalPct}%`;
+                document.getElementById('resultName').innerText = currentUser;
+                Swal.close();
             })
-            .catch(error => {
-                console.error('Error:', error);
+            .catch(err => {
+                console.error(err);
                 Swal.fire({
                     title: 'Signal Lost!',
                     text: 'Could not connect to the server. Please check your network and try again.',
