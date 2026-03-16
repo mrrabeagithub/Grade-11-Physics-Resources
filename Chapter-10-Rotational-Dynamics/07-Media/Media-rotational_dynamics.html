@@ -1,6 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
+<html lang="en"><head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Chapter Media Library</title>
@@ -15,14 +14,11 @@
         .playlist-scroll::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 8px; }
         .playlist-scroll::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.2); }
         .active-video { border-color: #ef4444 !important; background: rgba(239, 68, 68, 0.1) !important; }
-        /* Modal Animation */
         #settings-modal { transition: opacity 0.3s ease, pointer-events 0.3s ease; }
         .modal-active { opacity: 1; pointer-events: auto; }
         .modal-hidden { opacity: 0; pointer-events: none; }
     </style>
 
-    <!-- 🛠️ EMBEDDED CONFIGURATION DATA 🛠️ -->
-    <!-- The JavaScript reads and rewrites this JSON block when you save settings -->
     <script id="config-data" type="application/json">
 {
     "PAGE_TITLE": "Rotational Dynamics",
@@ -37,32 +33,26 @@
 <body class="min-h-screen flex flex-col relative">
 
     <div class="flex-grow p-4 md:p-8 max-w-7xl mx-auto w-full">
-        <!-- Header -->
         <header class="mb-8 flex items-end justify-between border-b border-white/10 pb-6">
             <div>
                 <div class="flex items-center space-x-3 mb-2">
                     <i class="fab fa-youtube text-red-500 text-xl"></i>
                     <span class="text-[10px] font-bold text-red-500 uppercase tracking-widest tracking-[0.2em]">Media Library</span>
                 </div>
-                <h1 id="ui-title" class="text-3xl md:text-4xl font-black text-white italic tracking-tighter">Rotational Dynamics</h1>
+                <h1 id="ui-title" class="text-3xl md:text-4xl font-black text-white italic tracking-tighter">Work, Energy &amp; Power</h1>
                 <p id="ui-desc" class="text-slate-400 mt-2 text-sm max-w-2xl">Selected video lectures, derivations, and experimental demonstrations for this module.</p>
             </div>
             
             <div class="flex space-x-3">
-                <!-- Settings Gear (Facilitator Only) -->
-                <button onclick="openSettings()" class="glass px-4 py-3 rounded-xl text-slate-400 hover:text-white hover:bg-white/10 transition items-center border-white/5 group" title="Technician Settings">
-                    <i class="fas fa-cog group-hover:rotate-90 transition duration-300"></i>
-                </button>
+                
                 <a href="javascript:window.close();" class="hidden md:flex glass px-6 py-3 rounded-xl text-xs font-black uppercase tracking-widest hover:bg-white/10 transition items-center border-white/5">
                     <i class="fas fa-times mr-2 text-slate-400"></i> Close
                 </a>
             </div>
         </header>
 
-        <!-- Media Player Layout -->
         <div class="flex flex-col lg:flex-row gap-6">
             
-            <!-- Main Video Player -->
             <div class="w-full lg:w-2/3 flex flex-col">
                 <div class="glass rounded-3xl overflow-hidden shadow-2xl relative aspect-video bg-black flex items-center justify-center border-white/10">
                     <div id="main-player-container" class="w-full h-full"></div>
@@ -70,14 +60,9 @@
                 
                 <div class="mt-6 px-2">
                     <h2 id="current-video-title" class="text-xl font-bold text-white mb-2">Select a video to begin</h2>
-                    <p class="text-sm text-slate-400 flex items-center">
-                        <i class="fas fa-info-circle mr-2 text-blue-400"></i>
-                        External playback handled via YouTube CDN.
-                    </p>
                 </div>
             </div>
 
-            <!-- Playlist Sidebar -->
             <div class="w-full lg:w-1/3">
                 <div class="glass rounded-3xl p-4 flex flex-col h-[500px] border-white/10">
                     <div class="flex justify-between items-center mb-4 px-2">
@@ -92,76 +77,29 @@
         </div>
     </div>
 
-    <!-- 🛠️ TECHNICIAN SETTINGS MODAL 🛠️ -->
-    <div id="settings-modal" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/80 backdrop-blur-sm modal-hidden">
-        <div class="glass border border-white/10 w-full max-w-2xl rounded-3xl p-8 shadow-2xl relative max-h-[90vh] overflow-y-auto">
-            
-            <div class="flex justify-between items-center mb-6">
-                <h2 class="text-2xl font-black text-white italic tracking-tighter">
-                    <i class="fas fa-tools text-blue-500 mr-2"></i> Dashboard Configuration
-                </h2>
-                <button onclick="closeSettings()" class="text-slate-500 hover:text-white transition">
-                    <i class="fas fa-times text-xl"></i>
-                </button>
-            </div>
+    
 
-            <div class="space-y-5">
-                <div>
-                    <label class="block text-[10px] font-black uppercase tracking-widest text-slate-500 mb-2">Chapter Title</label>
-                    <input type="text" id="edit-title" class="w-full bg-black/30 border border-white/10 rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:border-blue-500 transition">
-                </div>
-                
-                <div>
-                    <label class="block text-[10px] font-black uppercase tracking-widest text-slate-500 mb-2">Description</label>
-                    <textarea id="edit-desc" rows="2" class="w-full bg-black/30 border border-white/10 rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:border-blue-500 transition"></textarea>
-                </div>
-
-                <div>
-                    <label class="block text-[10px] font-black uppercase tracking-widest text-slate-500 mb-2">YouTube Links (One per line)</label>
-                    <textarea id="edit-urls" rows="6" placeholder="https://www.youtube.com/watch?v=...\nhttps://youtu.be/..." class="w-full bg-black/30 border border-white/10 rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:border-blue-500 transition font-mono whitespace-pre text-nowrap"></textarea>
-                    <p class="text-[10px] text-slate-500 mt-2">Paste standard or mobile YouTube links. The engine automatically extracts the Video IDs.</p>
-                </div>
-            </div>
-
-            <div class="mt-8 pt-6 border-t border-white/10 flex justify-end space-x-4">
-                <button onclick="closeSettings()" class="px-6 py-3 rounded-xl text-sm font-bold text-slate-400 hover:text-white transition">Cancel</button>
-                <button onclick="saveAndExport()" class="px-6 py-3 bg-blue-600 hover:bg-blue-500 rounded-xl text-sm font-bold text-white shadow-[0_0_20px_rgba(37,99,235,0.4)] transition flex items-center">
-                    <i class="fas fa-download mr-2"></i> Save &amp; Export File
-                </button>
-            </div>
-            
-            <div class="mt-4 p-3 bg-blue-900/20 rounded-lg border border-blue-500/20">
-                <p class="text-xs text-blue-400 flex items-center"><i class="fas fa-info-circle mr-2"></i> <strong>Workflow:</strong> Clicking save will generate a new HTML file. Replace your existing file with this one, then push it to GitHub.</p>
-            </div>
-        </div>
-    </div>
-
-    <!-- Application Logic -->
     <script>
         let configData = {};
         let videos = [];
         let currentIndex = 0;
 
-        // 1. Boot up and read the JSON block
         function initializeApp() {
             try {
                 const rawData = document.getElementById('config-data').textContent;
                 configData = JSON.parse(rawData);
             } catch (e) {
-                console.error("Configuration Block Error:", e);
                 configData = { PAGE_TITLE: "Error", PAGE_DESC: "Could not parse JSON.", VIDEO_LINKS: [] };
             }
             applyConfigToUI();
         }
 
-        // 2. Extract YouTube ID
         function extractVideoID(url) {
             const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
             const match = url.match(regExp);
             return (match && match[2].length === 11) ? match[2] : null;
         }
 
-        // 3. Apply the Config to the actual Dashboard
         function applyConfigToUI() {
             document.getElementById('ui-title').innerText = configData.PAGE_TITLE;
             document.getElementById('ui-desc').innerText = configData.PAGE_DESC;
@@ -182,7 +120,6 @@
             if (videos.length > 0) {
                 renderSidebar();
                 updateSidebarHighlight();
-                // Reset main player to placeholder
                 document.getElementById('main-player-container').innerHTML = `
                     <div class="absolute inset-0 flex flex-col items-center justify-center cursor-pointer group" onclick="loadVideo(0)">
                         <div class="w-20 h-20 bg-red-600 rounded-full flex items-center justify-center mb-4 group-hover:bg-red-500 transition shadow-[0_0_30px_rgba(220,38,38,0.5)]">
@@ -198,17 +135,20 @@
             }
         }
 
-        // 4. Video Player Logic
         function loadVideo(index) {
             if (videos.length === 0) return;
             currentIndex = index;
             const video = videos[index];
             
+            const validOrigin = (window.location.origin !== "null" && !window.location.origin.startsWith("file")) 
+                ? window.location.origin 
+                : "https://mrrabeagithub.github.io";
+            
             document.getElementById('main-player-container').innerHTML = `
                 <iframe class="w-full h-full absolute top-0 left-0" 
-                    src="https://www.youtube.com/embed/${video.id}?autoplay=1&rel=0" 
+                    src="https://www.youtube-nocookie.com/embed/${video.id}?autoplay=1&rel=0&origin=${encodeURIComponent(validOrigin)}" 
                     title="YouTube player" frameborder="0" 
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
                     allowfullscreen>
                 </iframe>
             `;
@@ -255,7 +195,7 @@
             });
         }
 
-        // --- 🛠️ SETTINGS & EXPORT LOGIC 🛠️ ---
+        // --- 🛠️ CLEAN EXPORT LOGIC 🛠️ ---
         
         function openSettings() {
             document.getElementById('edit-title').value = configData.PAGE_TITLE;
@@ -272,55 +212,57 @@
         }
 
         function saveAndExport() {
-            // 1. Gather new data
             const newTitle = document.getElementById('edit-title').value;
             const newDesc = document.getElementById('edit-desc').value;
             const newUrls = document.getElementById('edit-urls').value.split('\n')
                                 .map(u => u.trim())
                                 .filter(u => u.length > 0);
 
-            // 2. Update config object
             configData = { PAGE_TITLE: newTitle, PAGE_DESC: newDesc, VIDEO_LINKS: newUrls };
-
-            // 3. Update the JSON script block in the DOM
             document.getElementById('config-data').textContent = '\n' + JSON.stringify(configData, null, 4) + '\n    ';
 
-            // 4. Clean the dynamic containers so the exported HTML is clean and pristine
+            // Wipe dynamics before compile
             document.getElementById('main-player-container').innerHTML = '';
             document.getElementById('playlist-container').innerHTML = '';
             document.getElementById('video-count').innerText = '0';
             
+            // STRIP TECHNICIAN TOOLS
+            const gearBtn = document.getElementById('settings-gear');
+            const modalDiv = document.getElementById('settings-modal');
+            
+            const gearParent = gearBtn.parentNode;
+            const gearNext = gearBtn.nextSibling;
+            const modalParent = modalDiv.parentNode;
+            const modalNext = modalDiv.nextSibling;
+            
+            gearBtn.remove();
+            modalDiv.remove();
+
+            // Compile pristine student file
+            const fullHTML = "<!DOCTYPE html>\n" + document.documentElement.outerHTML;
+            
+            // Restore tools to local window
+            gearParent.insertBefore(gearBtn, gearNext);
+            modalParent.insertBefore(modalDiv, modalNext);
             closeSettings();
 
-            // 5. Generate the file and force download
-            setTimeout(() => {
-                // Grab the whole HTML document
-                const fullHTML = "<!DOCTYPE html>\n<html lang=\"en\">\n" + document.documentElement.innerHTML + "\n</html>";
-                
-                // Create a Blob file
-                const blob = new Blob([fullHTML], { type: 'text/html' });
-                const url = URL.createObjectURL(blob);
-                
-                // Trigger download
-                const a = document.createElement('a');
-                a.href = url;
-                // Clean filename (e.g., Media-Work-Energy-Power.html)
-                const safeName = newTitle.replace(/[^a-z0-9]/gi, '_').toLowerCase();
-                a.download = `Media-${safeName}.html`;
-                
-                document.body.appendChild(a);
-                a.click();
-                document.body.removeChild(a);
-                URL.revokeObjectURL(url);
+            // Trigger download
+            const blob = new Blob([fullHTML], { type: 'text/html' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            const safeName = newTitle.replace(/[^a-z0-9]/gi, '_').toLowerCase();
+            a.download = `Media-${safeName}.html`;
+            
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
 
-                // 6. Re-apply config to the current UI so the screen isn't blank
-                applyConfigToUI();
-            }, 100); // slight delay to allow modal closing animation
+            applyConfigToUI();
         }
 
-        // Run on startup
         window.addEventListener('DOMContentLoaded', initializeApp);
     </script>
 
-</body>
-</html>
+</body></html>
