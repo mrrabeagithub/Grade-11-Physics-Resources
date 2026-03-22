@@ -1,5 +1,6 @@
 <!DOCTYPE html>
-<html lang="en"><head>
+<html lang="en">
+<head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Chapter Media Library</title>
@@ -17,6 +18,8 @@
         #settings-modal { transition: opacity 0.3s ease, pointer-events 0.3s ease; }
         .modal-active { opacity: 1; pointer-events: auto; }
         .modal-hidden { opacity: 0; pointer-events: none; }
+        /* Prevent text selection on the secret trigger area */
+        .secret-trigger { user-select: none; -webkit-user-select: none; }
     </style>
 
     <script id="config-data" type="application/json">
@@ -24,8 +27,20 @@
     "PAGE_TITLE": "Rotational Dynamics",
     "PAGE_DESC": "Selected video lectures, derivations, and experimental demonstrations for this module.",
     "VIDEO_LINKS": [
-        "https://www.youtube.com/watch?v=c3lGCcBwsPo&list=PLV5-YuWv8JL2fyrOFT2aTelYnRhcwgP17&index=32",
-        "https://www.youtube.com/watch?v=Yg3BS5nrFK8&list=PLV5-YuWv8JL2fyrOFT2aTelYnRhcwgP17&index=31"
+        "https://youtu.be/c3lGCcBwsPo?si=80iyZgW8F5cEViL4",
+        "https://youtu.be/Yg3BS5nrFK8?si=zOGM0Rh7dt19VLxF",
+        "https://youtu.be/Tu6e9_SrzBA?si=KAPSAQlsZXb_NXGb",
+        "https://youtu.be/-JNysKmGvJU?si=YEu8t4KL0WG5yAgz",
+        "https://youtu.be/iP0GpD-5oP8?si=RHYGh29KQJDobJLm",
+        "https://youtu.be/3HKLpeFrJlY?si=mFoAcRSzKP8Ep_Sb",
+        "https://youtu.be/Bq6DP-Uuhnw?si=ZvEVBehmxc9HgQ0N",
+        "https://youtu.be/lNx0yPdl960?si=vwVlS3bkPzHp2Htk",
+        "https://youtu.be/CqSHxmiFltc?si=FJlLj1xJlZQIJmvm",
+        "https://youtu.be/gqfdO5lNHwo?si=K8rgHBmOawYxSI9A",
+        "https://youtu.be/-e5iyx-Ap2E?si=1EjHnmVQtXm7ISOs",
+        "https://youtu.be/JairUssEgFc?si=VAUdaa9n6XLyKyeY",
+        "https://youtu.be/Pij_w4_7YRU?si=uPQs8fl_hFGZMAGE",
+        "https://youtu.be/rItMh1Q-4Cw?si=IOSai69WX2_eY-6R"
     ]
 }
     </script>
@@ -35,7 +50,8 @@
     <div class="flex-grow p-4 md:p-8 max-w-7xl mx-auto w-full">
         <header class="mb-8 flex items-end justify-between border-b border-white/10 pb-6">
             <div>
-                <div class="flex items-center space-x-3 mb-2">
+                <!-- 🛠️ SECRET TRIGGER ZONE 🛠️ Double-click this div to reveal settings -->
+                <div class="flex items-center space-x-3 mb-2 cursor-pointer secret-trigger" ondblclick="toggleTechnicianMode()" title="Facilitator UI">
                     <i class="fab fa-youtube text-red-500 text-xl"></i>
                     <span class="text-[10px] font-bold text-red-500 uppercase tracking-widest tracking-[0.2em]">Media Library</span>
                 </div>
@@ -44,7 +60,10 @@
             </div>
             
             <div class="flex space-x-3">
-                
+                <!-- Settings Gear (Hidden by default, revealed by double-click) -->
+                <button id="settings-gear" onclick="openSettings()" class="glass px-4 py-3 rounded-xl text-slate-400 hover:text-white hover:bg-white/10 transition items-center border-white/5 group hidden" title="Technician Settings">
+                    <i class="fas fa-cog group-hover:rotate-90 transition duration-300"></i>
+                </button>
                 <a href="javascript:window.close();" class="hidden md:flex glass px-6 py-3 rounded-xl text-xs font-black uppercase tracking-widest hover:bg-white/10 transition items-center border-white/5">
                     <i class="fas fa-times mr-2 text-slate-400"></i> Close
                 </a>
@@ -77,7 +96,47 @@
         </div>
     </div>
 
-    
+    <div id="settings-modal" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/80 backdrop-blur-sm modal-hidden">
+        <div class="glass border border-white/10 w-full max-w-2xl rounded-3xl p-8 shadow-2xl relative max-h-[90vh] overflow-y-auto">
+            
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-black text-white italic tracking-tighter">
+                    <i class="fas fa-tools text-blue-500 mr-2"></i> Dashboard Configuration
+                </h2>
+                <button onclick="closeSettings()" class="text-slate-500 hover:text-white transition">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+
+            <div class="space-y-5">
+                <div>
+                    <label class="block text-[10px] font-black uppercase tracking-widest text-slate-500 mb-2">Chapter Title</label>
+                    <input type="text" id="edit-title" class="w-full bg-black/30 border border-white/10 rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:border-blue-500 transition">
+                </div>
+                
+                <div>
+                    <label class="block text-[10px] font-black uppercase tracking-widest text-slate-500 mb-2">Description</label>
+                    <textarea id="edit-desc" rows="2" class="w-full bg-black/30 border border-white/10 rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:border-blue-500 transition"></textarea>
+                </div>
+
+                <div>
+                    <label class="block text-[10px] font-black uppercase tracking-widest text-slate-500 mb-2">YouTube Links (One per line)</label>
+                    <textarea id="edit-urls" rows="6" placeholder="https://www.youtube.com/watch?v=...\nhttps://youtu.be/..." class="w-full bg-black/30 border border-white/10 rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:border-blue-500 transition font-mono whitespace-pre text-nowrap"></textarea>
+                </div>
+            </div>
+
+            <div class="mt-8 pt-6 border-t border-white/10 flex justify-end space-x-4">
+                <button onclick="closeSettings()" class="px-6 py-3 rounded-xl text-sm font-bold text-slate-400 hover:text-white transition">Cancel</button>
+                <button onclick="saveAndExport()" class="px-6 py-3 bg-blue-600 hover:bg-blue-500 rounded-xl text-sm font-bold text-white shadow-[0_0_20px_rgba(37,99,235,0.4)] transition flex items-center">
+                    <i class="fas fa-download mr-2"></i> Save &amp; Export File
+                </button>
+            </div>
+            
+            <div class="mt-4 p-3 bg-blue-900/20 rounded-lg border border-blue-500/20">
+                <p class="text-xs text-blue-400 flex items-center"><i class="fas fa-info-circle mr-2"></i> <strong>Infinitely Editable:</strong> To edit the generated file later, simply double-click the "Media Library" text in the top left to reveal this menu.</p>
+            </div>
+        </div>
+    </div>
 
     <script>
         let configData = {};
@@ -92,6 +151,18 @@
                 configData = { PAGE_TITLE: "Error", PAGE_DESC: "Could not parse JSON.", VIDEO_LINKS: [] };
             }
             applyConfigToUI();
+        }
+
+        // --- TECHNICIAN BYPASS LOGIC ---
+        function toggleTechnicianMode() {
+            const gear = document.getElementById('settings-gear');
+            if(gear.classList.contains('hidden')) {
+                gear.classList.remove('hidden');
+                gear.classList.add('flex'); // Add tailwind flex for proper alignment
+            } else {
+                gear.classList.add('hidden');
+                gear.classList.remove('flex');
+            }
         }
 
         function extractVideoID(url) {
@@ -194,8 +265,6 @@
                 }
             });
         }
-
-        // --- 🛠️ CLEAN EXPORT LOGIC 🛠️ ---
         
         function openSettings() {
             document.getElementById('edit-title').value = configData.PAGE_TITLE;
@@ -221,30 +290,20 @@
             configData = { PAGE_TITLE: newTitle, PAGE_DESC: newDesc, VIDEO_LINKS: newUrls };
             document.getElementById('config-data').textContent = '\n' + JSON.stringify(configData, null, 4) + '\n    ';
 
-            // Wipe dynamics before compile
+            // Wipe dynamics before compile so it starts clean when opened
             document.getElementById('main-player-container').innerHTML = '';
             document.getElementById('playlist-container').innerHTML = '';
             document.getElementById('video-count').innerText = '0';
             
-            // STRIP TECHNICIAN TOOLS
+            // Ensure the gear is hidden in the exported file
             const gearBtn = document.getElementById('settings-gear');
-            const modalDiv = document.getElementById('settings-modal');
-            
-            const gearParent = gearBtn.parentNode;
-            const gearNext = gearBtn.nextSibling;
-            const modalParent = modalDiv.parentNode;
-            const modalNext = modalDiv.nextSibling;
-            
-            gearBtn.remove();
-            modalDiv.remove();
+            gearBtn.classList.add('hidden');
+            gearBtn.classList.remove('flex');
 
-            // Compile pristine student file
-            const fullHTML = "<!DOCTYPE html>\n" + document.documentElement.outerHTML;
-            
-            // Restore tools to local window
-            gearParent.insertBefore(gearBtn, gearNext);
-            modalParent.insertBefore(modalDiv, modalNext);
             closeSettings();
+
+            // Compile the file WITH the toolset included (no stripping)
+            const fullHTML = "<!DOCTYPE html>\n<html lang=\"en\">\n" + document.documentElement.innerHTML + "\n</html>";
 
             // Trigger download
             const blob = new Blob([fullHTML], { type: 'text/html' });
@@ -265,4 +324,5 @@
         window.addEventListener('DOMContentLoaded', initializeApp);
     </script>
 
-</body></html>
+</body>
+</html>
