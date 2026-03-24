@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Rotating Crane Arm - Smart Sheet</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {}
+            }
+        }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; transition: background-color 0.3s, color 0.3s; }
+        .glass-panel { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); border: 1px solid rgba(0, 0, 0, 0.1); transition: background-color 0.3s, border-color 0.3s; }
+        .dark .glass-panel { background: rgba(30, 41, 59, 0.95); border: 1px solid rgba(255, 255, 255, 0.1); }
+        .latex-math { font-family: 'Times New Roman', serif; font-style: italic; }
+        
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #f1f1f1; }
+        .dark ::-webkit-scrollbar-track { background: #1e293b; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        .dark ::-webkit-scrollbar-thumb { background: #475569; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+        
+        .modal-active { overflow: hidden; }
+        .choice-btn { transition: all 0.2s; }
+        .choice-btn.selected { background-color: #3b82f6; color: white; border-color: #2563eb; }
+        .choice-btn.disabled { opacity: 0.7; cursor: not-allowed; }
+    </style>
+</head>
+<body class="bg-slate-100 text-slate-800 dark:bg-slate-900 dark:text-slate-200 antialiased min-h-screen flex flex-col items-center py-8">
+
+    <!-- Theme Toggle -->
+    <div class="fixed top-4 right-4 z-50">
+        <button onclick="toggleTheme()" class="p-3 rounded-full bg-white dark:bg-slate-800 shadow-lg text-slate-800 dark:text-yellow-400 border border-slate-200 dark:border-slate-700 hover:scale-110 transition-transform">
+            <svg id="themeIconDark" class="w-5 h-5 hidden dark:block" fill="currentColor" viewBox="0 0 20 20"><path d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z"></path></svg>
+            <svg id="themeIconLight" class="w-5 h-5 block dark:hidden" fill="currentColor" viewBox="0 0 20 20"><path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"></path></svg>
+        </button>
+    </div>
+
+    <!-- Auth Modal -->
+    <div id="authModal" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/80 backdrop-blur-sm transition-opacity">
+        <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl p-8 max-w-md w-full mx-4 transform transition-all border border-slate-200 dark:border-slate-700">
+            <div class="text-center mb-8">
+                <div class="w-16 h-16 bg-blue-100 dark:bg-blue-900/50 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <svg class="w-8 h-8 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
+                </div>
+                <h2 class="text-2xl font-bold text-slate-800 dark:text-white">Smart-Sheet Login</h2>
+                <p class="text-slate-500 dark:text-slate-400 mt-2">Grade 11 Physics | The Crane Arm</p>
+            </div>
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Access Code</label>
+                    <input type="password" id="accessCode" class="w-full px-4 py-3 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors text-center text-2xl tracking-widest" placeholder="••••" maxlength="4" autocomplete="off">
+                </div>
+                <div id="authError" class="hidden text-red-500 text-sm text-center font-medium">Invalid Access Code</div>
+                <button onclick="authenticate()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-4 rounded-lg transition-colors duration-200">
+                    Access Assignment
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <main class="w-full max-w-5xl px-4 hidden" id="mainContent">
+        <!-- Header -->
+        <header class="glass-panel rounded-2xl shadow-sm p-6 mb-6 flex flex-col md:flex-row items-start md:items-center justify-between border-t-4 border-blue-600">
+            <div>
+                <h1 class="text-2xl font-bold text-slate-800 dark:text-white">The Rotating Crane Arm</h1>
+                <p class="text-slate-500 dark:text-slate-400 mt-1" id="studentNameDisplay">Student: Loading...</p>
+            </div>
+            <div class="mt-4 md:mt-0 bg-blue-50 dark:bg-blue-900/30 px-4 py-2 rounded-lg border border-blue-100 dark:border-blue-800/50">
+                <p class="text-sm font-semibold text-blue-800 dark:text-blue-300">Status: <span id="statusIndicator" class="text-blue-600 dark:text-blue-400">In Progress</span></p>
+            </div>
+        </header>
+
+        <!-- Problem Setup & Diagram -->
+        <section class="glass-panel rounded-2xl shadow-sm p-6 mb-6">
+            <h2 class="text-lg font-bold text-slate-800 dark:text-white mb-4 border-b border-slate-200 dark:border-slate-700 pb-2">Problem Scenario: System Data & Diagram</h2>
+            
+            <div class="flex flex-col md:flex-row items-center gap-8">
+                <div class="w-full md:w-1/2 text-sm text-slate-700 dark:text-slate-300 space-y-3">
+                    <p>A homogeneous rigid rod <strong>OB</strong> can rotate without friction in a vertical plane around a fixed horizontal axis (Δ) passing through its hinge <strong>O</strong>.</p>
+                    <p id="dynamicData" class="p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-100 dark:border-blue-800 font-medium">
+                        <!-- Filled by JS -->
+                    </p>
+                    <h3 class="font-semibold text-slate-900 dark:text-white pt-2">Assumptions & Rules:</h3>
+                    <ul class="list-disc pl-5 space-y-1">
+                        <li>Gravity: <span class="latex-math">g = 10 m/s²</span></li>
+                        <li>Moment of Inertia (Rod at end): <span class="latex-math">I<sub>rod</sub> = ⅓ ML²</span></li>
+                        <li>Sign Convention: Counter-clockwise (CCW) is positive (+).</li>
+                    </ul>
+                </div>
+                
+                <div class="w-full md:w-1/2 bg-white dark:bg-slate-800 rounded-xl p-4 border border-slate-200 dark:border-slate-700 flex justify-center">
+                    <svg viewBox="0 0 320 200" class="w-full max-w-[300px] h-auto">
+                        <!-- Wall -->
+                        <rect x="20" y="20" width="20" height="160" fill="currentColor" class="text-slate-400 dark:text-slate-600" />
+                        <!-- Hinge O -->
+                        <circle cx="40" cy="100" r="6" fill="currentColor" class="text-slate-800 dark:text-slate-200" />
+                        <text x="25" y="120" font-family="sans-serif" font-size="16" font-weight="bold" fill="currentColor" class="text-slate-800 dark:text-slate-200">O</text>
+                        <!-- Rod -->
+                        <rect x="40" y="96" width="200" height="8" fill="currentColor" class="text-slate-300 dark:text-slate-500" stroke="currentColor" stroke-width="2"/>
+                        <!-- Point B -->
+                        <text x="245" y="120" font-family="sans-serif" font-size="16" font-weight="bold" fill="currentColor" class="text-slate-800 dark:text-slate-200">B</text>
+                        <!-- Cable -->
+                        <line x1="236" y1="96" x2="236" y2="30" stroke="#ef4444" stroke-width="3" stroke-dasharray="6,4"/>
+                        <text x="245" y="60" font-family="sans-serif" font-size="14" font-weight="bold" fill="#ef4444">Cable (T)</text>
+                        <!-- Block (Ghosted for Part 2) -->
+                        <rect x="226" y="104" width="20" height="20" fill="#3b82f6" opacity="0.6" rx="2" />
+                        <text x="220" y="145" font-family="sans-serif" font-size="12" fill="#3b82f6" font-weight="bold">Block m (Part 2)</text>
+                        
+                        <!-- Axis marker -->
+                        <path d="M40 70 A 30 30 0 0 0 10 100" fill="none" stroke="currentColor" class="text-slate-400" stroke-width="1.5" stroke-dasharray="3,3" />
+                        <text x="5" y="65" font-family="sans-serif" font-size="14" fill="currentColor" class="text-slate-500 font-bold">(Δ)</text>
+                    </svg>
+                </div>
+            </div>
+        </section>
+
+        <!-- MCQ Questions Container -->
+        <section id="questionsContainer" class="space-y-6 mb-8">
+            <!-- Questions injected via JS -->
+        </section>
+
+        <!-- Submit Section -->
+        <section class="glass-panel rounded-2xl shadow-sm p-6 mb-12 text-center border-t-4 border-emerald-500">
+            <h3 class="text-xl font-bold text-slate-800 dark:text-white mb-2">Ready to Submit?</h3>
+            <p class="text-slate-500 dark:text-slate-400 mb-6">Make sure you have answered all questions. You cannot change your answers after submission.</p>
+            <button id="submitBtn" onclick="submitWorksheet()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 px-8 rounded-full shadow-lg transition-transform transform hover:scale-105">
+                Submit Worksheet
+            </button>
+            <div id="submissionMessage" class="hidden mt-4 font-semibold"></div>
+        </section>
+    </main>
+
+    <script>
+        /**
+         * 0. THEME MANAGEMENT
+         */
+        function toggleTheme() {
+            document.documentElement.classList.toggle('dark');
+        }
+
+        /**
+         * 1. CONFIGURATION & STATE
+         */
+        const CONFIG = {
+            url: "https://script.google.com/macros/s/AKfycbwi6mohSrHkJ2iuQuLvg-EgEjYuAdrtNRyI9NgtljuNdgfzjUR-gKTvO7O889fNguAiiQ/exec",
+            topic: "The Rotating Crane Arm",
+            numQuestions: 6
+        };
+
+        const STUDENTS = {
+            "3580": "احمد / محمد / الخالد",
+            "7732": "احمد / هيثم / سبلبل",
+            "5294": "امير خالد / وليد / مهتدي",
+            "8738": "انطون / عبد الله / مشحم",
+            "5644": "بسام / محمد / طالب",
+            "7808": "زكريا / مصطفى / مراد",
+            "8893": "عبد العزيز / ناصر / عساف",
+            "8900": "عمر / كمال / باليقه",
+            "7749": "كامل / احمد / رنو",
+            "8073": "محمد علي / محمد / الرفاعي",
+            "3098": "ميار / حسام الدين / ديري",
+            "8597": "هادي / عمر / قره علي",
+            "6722": "هاني / عمر / ابراهيم",
+            "7439": "يحيى / زيد / حمزة",
+            "3655": "يحيى / ماهر / مراد",
+            "6634": "يوسف / منير / ابراهيم",
+            "0000": "Admin Overlay",
+            "1111": "Tutor System"
+        };
+
+        let currentUser = null;
+        let questionsData = [];
+        let userAnswers = {};
+        let isSubmitted = false;
+        
+        // Scenario Variables
+        let sysData = {
+            M: Math.floor(Math.random() * 4 + 2), // 2 to 5 kg
+            L: Math.floor(Math.random() * 3 + 2), // 2 to 4 m
+            m: Math.floor(Math.random() * 3 + 1), // 1 to 3 kg
+            g: 10
+        };
+
+        /**
+         * 2. AUTHENTICATION
+         */
+        function authenticate() {
+            const code = document.getElementById('accessCode').value.trim();
+            const errorDiv = document.getElementById('authError');
+            
+            if (STUDENTS[code]) {
+                currentUser = STUDENTS[code];
+                document.getElementById('authModal').classList.add('hidden');
+                document.body.classList.remove('modal-active');
+                document.getElementById('mainContent').classList.remove('hidden');
+                document.getElementById('studentNameDisplay').textContent = `Student: ${currentUser}`;
+                initWorksheet();
+            } else {
+                errorDiv.classList.remove('hidden');
+                document.getElementById('accessCode').value = '';
+                document.getElementById('accessCode').focus();
+            }
+        }
+
+        document.getElementById('accessCode').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') authenticate();
+        });
+
+        // Helper: Shuffle options array
+        function shuffle(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+
+        /**
+         * 3. QUESTION GENERATOR
+         */
+        function generateQuestions() {
+            questionsData = [];
+
+            // Q1: Part 1 - Static Forces (Conceptual)
+            questionsData.push({
+                id: 1,
+                title: "Part 1: Static Equilibrium | Q1. Force Analysis",
+                text: "Initially, the rod is maintained at rest in a perfectly horizontal position by the vertical cable. Which of the following lists correctly identifies the three external forces acting on the rod OB?",
+                options: [
+                    "Weight (at Center), Tension (at B), Reaction of Hinge (at O)",
+                    "Weight (at B), Normal Force (at O), Friction (at Center)",
+                    "Gravity (at O), Tension (at Center), Reaction of Hinge (at B)",
+                    "Weight (at Center), Tension (at O), Reaction of Hinge (at B)"
+                ],
+                correctIndex: 0
+            });
+
+            // Q2: Part 1 - Algebraic Moment
+            let momentW = -1 * sysData.M * sysData.g * (sysData.L / 2);
+            let q2Opts = [
+                `${momentW.toFixed(1)} N·m`,
+                `${Math.abs(momentW).toFixed(1)} N·m`,
+                `${(-1 * sysData.M * sysData.g * sysData.L).toFixed(1)} N·m`,
+                `${(-1 * sysData.M * sysData.g).toFixed(1)} N·m`
+            ];
+            let q2Correct = q2Opts[0];
+            q2Opts = [...new Set(q2Opts)]; // Ensure uniqueness
+            shuffle(q2Opts);
+
+            questionsData.push({
+                id: 2,
+                title: "Part 1: Static Equilibrium | Q2. Moments",
+                text: `Applying the condition of rotational equilibrium, calculate the algebraic moment of the weight of the rod ($M_W$) with respect to the axis (Δ) passing through O. (Remember: CCW is positive).`,
+                options: q2Opts,
+                correctIndex: q2Opts.indexOf(q2Correct)
+            });
+
+            // Q3: Part 1 - Calculating Tension
+            let tension = (sysData.M * sysData.g) / 2;
+            let q3Opts = [
+                `${tension.toFixed(1)} N`,
+                `${(sysData.M * sysData.g).toFixed(1)} N`,
+                `${(sysData.M * sysData.g * sysData.L / 2).toFixed(1)} N`,
+                `${(sysData.M * sysData.g / 4).toFixed(1)} N`
+            ];
+            let q3Correct = q3Opts[0];
+            q3Opts = [...new Set(q3Opts)];
+            shuffle(q3Opts);
+
+            questionsData.push({
+                id: 3,
+                title: "Part 1: Static Equilibrium | Q3. Cable Tension",
+                text: `Deduce the magnitude of the tension force $T$ required from the cable to keep the rod in equilibrium in this horizontal position.`,
+                options: q3Opts,
+                correctIndex: q3Opts.indexOf(q3Correct)
+            });
+
+            // Q4: Part 2 - Rotational Dynamics (Conceptual)
+            questionsData.push({
+                id: 4,
+                title: "Part 2: Rotational Dynamics | Q4. Kinematics",
+                text: "The cable is suddenly cut. As the rod drops and rotates downwards around (Δ), do the points O (the hinge) and B (the tip) have the same linear speed and angular speed?",
+                options: [
+                    "They have the same angular speed, but different linear speeds.",
+                    "They have the same linear speed, but different angular speeds.",
+                    "They have both the same angular speed and the same linear speed.",
+                    "Neither their angular speeds nor their linear speeds are the same."
+                ],
+                correctIndex: 0
+            });
+
+            // Q5: Part 2 - Moment of Inertia
+            let iRod = (1/3) * sysData.M * Math.pow(sysData.L, 2);
+            let iBlock = sysData.m * Math.pow(sysData.L, 2);
+            let iTotal = iRod + iBlock;
+            
+            let q5Opts = [
+                `${iTotal.toFixed(2)} kg·m²`,
+                `${((1/12) * sysData.M * Math.pow(sysData.L, 2) + iBlock).toFixed(2)} kg·m²`,
+                `${iRod.toFixed(2)} kg·m²`,
+                `${(sysData.M * Math.pow(sysData.L, 2) + iBlock).toFixed(2)} kg·m²`
+            ];
+            let q5Correct = q5Opts[0];
+            q5Opts = [...new Set(q5Opts)];
+            shuffle(q5Opts);
+
+            questionsData.push({
+                id: 5,
+                title: "Part 2: Rotational Dynamics | Q5. System Moment of Inertia",
+                text: `A heavy block of mass $m = ${sysData.m}$ kg is now attached to the end B. Calculate the new total moment of inertia $I_{total}$ of the system (Rod + Block) with respect to the axis (Δ).`,
+                options: q5Opts,
+                correctIndex: q5Opts.indexOf(q5Correct)
+            });
+
+            // Q6: Part 2 - Net Moment (Torque)
+            let momentBlock = -1 * sysData.m * sysData.g * sysData.L;
+            let netMoment = momentW + momentBlock;
+            
+            let q6Opts = [
+                `${netMoment.toFixed(1)} N·m`,
+                `${Math.abs(netMoment).toFixed(1)} N·m`,
+                `${(-1 * sysData.M * sysData.g * sysData.L + momentBlock).toFixed(1)} N·m`,
+                `${momentW.toFixed(1)} N·m` // forgetting the block
+            ];
+            let q6Correct = q6Opts[0];
+            q6Opts = [...new Set(q6Opts)];
+            shuffle(q6Opts);
+
+            questionsData.push({
+                id: 6,
+                title: "Part 2: Rotational Dynamics | Q6. Net Moment",
+                text: `Exactly at the instant the cable is cut (when the rod is still perfectly horizontal), calculate the Net Moment ($\Sigma M$) acting on the entire system (Rod + Block).`,
+                options: q6Opts,
+                correctIndex: q6Opts.indexOf(q6Correct)
+            });
+        }
+
+        /**
+         * 4. RENDER UI
+         */
+        function renderQuestions() {
+            // Fill Dynamic Data Text
+            document.getElementById('dynamicData').innerHTML = `
+                Rod Mass (M) = ${sysData.M} kg <br>
+                Rod Length (L) = ${sysData.L} m <br>
+                Block Mass (m) = ${sysData.m} kg 
+            `;
+
+            const container = document.getElementById('questionsContainer');
+            container.innerHTML = '';
+
+            questionsData.forEach((q, index) => {
+                const qDiv = document.createElement('div');
+                qDiv.className = 'glass-panel rounded-2xl shadow-sm p-6';
+                
+                // Add basic Markdown-like replacement for formulas
+                let formattedText = q.text.replace(/\$([^\$]+)\$/g, '<span class="latex-math">$1</span>');
+
+                let html = `<h3 class="text-lg font-bold text-slate-800 dark:text-white mb-2">${q.title}</h3>`;
+                html += `<p class="text-slate-700 dark:text-slate-300 mb-4">${formattedText}</p>`;
+                html += `<div class="grid grid-cols-1 md:grid-cols-2 gap-3">`;
+
+                const labels = ['A', 'B', 'C', 'D'];
+                q.options.forEach((opt, optIdx) => {
+                    html += `
+                        <button id="btn_${q.id}_${optIdx}" onclick="selectAnswer(${q.id}, ${optIdx})" class="choice-btn w-full text-left px-4 py-3 rounded-lg border border-slate-200 dark:border-slate-700 hover:border-blue-400 dark:hover:border-blue-500 hover:bg-blue-50 dark:hover:bg-slate-800 focus:outline-none flex gap-3 items-center">
+                            <span class="flex-shrink-0 w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-700 flex items-center justify-center font-bold text-slate-600 dark:text-slate-300">${labels[optIdx]}</span>
+                            <span class="text-slate-700 dark:text-slate-300 font-medium">${opt}</span>
+                        </button>
+                    `;
+                });
+
+                html += `</div>`;
+                qDiv.innerHTML = html;
+                container.appendChild(qDiv);
+            });
+        }
+
+        function selectAnswer(qId, optIdx) {
+            if (isSubmitted) return;
+            
+            userAnswers[qId] = optIdx;
+            
+            // Reset styles for this question
+            const q = questionsData.find(x => x.id === qId);
+            q.options.forEach((_, idx) => {
+                const btn = document.getElementById(`btn_${qId}_${idx}`);
+                btn.classList.remove('selected', 'bg-blue-600', 'text-white', 'border-blue-600', 'dark:border-blue-600');
+                
+                const badge = btn.querySelector('span:first-child');
+                badge.classList.remove('bg-blue-500', 'text-white');
+                badge.classList.add('bg-slate-100', 'dark:bg-slate-700', 'text-slate-600', 'dark:text-slate-300');
+                
+                const text = btn.querySelector('span:last-child');
+                text.classList.remove('text-white');
+                text.classList.add('text-slate-700', 'dark:text-slate-300');
+            });
+
+            // Apply selected style
+            const selectedBtn = document.getElementById(`btn_${qId}_${optIdx}`);
+            selectedBtn.classList.add('selected', 'bg-blue-600', 'border-blue-600', 'dark:border-blue-600');
+            
+            const selBadge = selectedBtn.querySelector('span:first-child');
+            selBadge.classList.remove('bg-slate-100', 'dark:bg-slate-700', 'text-slate-600', 'dark:text-slate-300');
+            selBadge.classList.add('bg-blue-500', 'text-white');
+            
+            const selText = selectedBtn.querySelector('span:last-child');
+            selText.classList.remove('text-slate-700', 'dark:text-slate-300');
+            selText.classList.add('text-white');
+        }
+
+        /**
+         * 5. SUBMISSION & GRADING
+         */
+        async function submitWorksheet() {
+            if (isSubmitted) return;
+
+            // Validation
+            if (Object.keys(userAnswers).length < questionsData.length) {
+                alert("Please answer all questions before submitting.");
+                return;
+            }
+
+            isSubmitted = true;
+            document.getElementById('submitBtn').disabled = true;
+            document.getElementById('submitBtn').classList.add('opacity-50', 'cursor-not-allowed');
+            document.getElementById('submitBtn').textContent = "Submitting...";
+
+            // Lock inputs
+            document.querySelectorAll('.choice-btn').forEach(btn => btn.classList.add('disabled'));
+
+            // Grade
+            let correctCount = 0;
+            let detailedAnswers = [];
+            const labels = ['A', 'B', 'C', 'D'];
+
+            questionsData.forEach(q => {
+                const selected = userAnswers[q.id];
+                const isCorrect = selected === q.correctIndex;
+                if (isCorrect) correctCount++;
+                
+                detailedAnswers.push(`Q${q.id}: ${labels[selected]} (${isCorrect ? 'Correct' : 'Incorrect'})`);
+
+                // Highlight correct/incorrect visually
+                const btn = document.getElementById(`btn_${q.id}_${selected}`);
+                if (isCorrect) {
+                    btn.classList.replace('bg-blue-600', 'bg-emerald-500');
+                    btn.classList.replace('border-blue-600', 'border-emerald-500');
+                    btn.classList.replace('dark:border-blue-600', 'dark:border-emerald-500');
+                } else {
+                    btn.classList.replace('bg-blue-600', 'bg-red-500');
+                    btn.classList.replace('border-blue-600', 'border-red-500');
+                    btn.classList.replace('dark:border-blue-600', 'dark:border-red-500');
+                    
+                    // show correct
+                    const correctBtn = document.getElementById(`btn_${q.id}_${q.correctIndex}`);
+                    correctBtn.classList.add('border-emerald-500', 'dark:border-emerald-500', 'bg-emerald-50', 'dark:bg-emerald-900/30');
+                }
+            });
+
+            const scoreStr = `${correctCount}/${questionsData.length}`;
+            const detailsStr = detailedAnswers.join(', ');
+
+            // Prepare Payload based on Universal Protocol
+            const payload = {
+                name: currentUser,
+                topic: CONFIG.topic,
+                score: scoreStr,
+                answers: detailsStr
+            };
+
+            // Display Local Feedback immediately
+            const msgBox = document.getElementById('submissionMessage');
+            msgBox.classList.remove('hidden');
+            msgBox.className = `mt-4 font-bold text-lg p-4 rounded-lg ${correctCount === questionsData.length ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-300' : 'bg-blue-100 text-blue-800 dark:bg-blue-900/40 dark:text-blue-300'}`;
+            msgBox.innerHTML = `Submission Complete! Your Score: ${scoreStr} (${Math.round(correctCount/questionsData.length*100)}%)`;
+            document.getElementById('statusIndicator').textContent = "Completed";
+            document.getElementById('statusIndicator').className = "text-emerald-600 dark:text-emerald-400";
+
+            // Transmit
+            try {
+                await fetch(CONFIG.url, {
+                    method: 'POST',
+                    mode: 'no-cors', // Essential for GAS
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                    body: JSON.stringify(payload)
+                });
+                console.log("Transmission initiated.");
+            } catch (error) {
+                console.error("Transmission error:", error);
+            }
+        }
+
+        /**
+         * 6. INITIALIZATION
+         */
+        function initWorksheet() {
+            generateQuestions();
+            renderQuestions();
+        }
+
+        // On Load, lock scroll
+        document.body.classList.add('modal-active');
+
+    </script>
+</body>
+</html>
