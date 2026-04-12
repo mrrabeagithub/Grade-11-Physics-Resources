@@ -1,0 +1,810 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Physics G11: Work and Energy Theorem</title>
+
+    <!-- Tailwind CSS with Dark Mode config -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Inter', 'sans-serif'] }
+                }
+            }
+        }
+    </script>
+
+    <!-- MathJax for LaTeX rendering -->
+    <script>
+        MathJax = {
+            tex: { inlineMath: [['$', '$'], ['\\(', '\\)']], displayMath: [['$$', '$$'], ['\\[', '\\]']] }
+        };
+    </script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+    <!-- Chart.js for Graphs -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .hidden-ui { display: none !important; }
+        .glass-panel { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.2); }
+        .dark .glass-panel { background: rgba(30, 41, 59, 0.95); border: 1px solid rgba(255,255,255,0.1); }
+        input[type="range"] { accent-color: #4f46e5; }
+        .chart-container { position: relative; height: 250px; width: 100%; }
+        
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #f1f5f9; }
+        .dark ::-webkit-scrollbar-track { background: #1e293b; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        .dark ::-webkit-scrollbar-thumb { background: #475569; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+        
+        .app-box { border-left: 4px solid #3b82f6; padding: 1rem; border-radius: 0 0.5rem 0.5rem 0; margin-bottom: 1rem; }
+        
+        /* Smooth transitions for dark mode */
+        body, div, p, h1, h2, h3, h4, span, label { transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease; }
+    </style>
+</head>
+<body class="text-slate-800 dark:text-slate-200 bg-slate-50 dark:bg-slate-900 antialiased h-screen overflow-hidden flex flex-col">
+
+    <!-- LOGIN OVERLAY -->
+    <div id="loginOverlay" class="absolute inset-0 z-50 flex items-center justify-center bg-slate-900 bg-opacity-80 backdrop-blur-sm">
+        <div class="glass-panel p-8 rounded-2xl shadow-2xl max-w-md w-full mx-4 transform transition-all">
+            <div class="text-center mb-6">
+                <div class="bg-indigo-600 text-white w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg">
+                    <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>
+                </div>
+                <h2 class="text-2xl font-bold text-slate-800 dark:text-slate-100">Smart-Sheet Architect</h2>
+                <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">Grade 11 • Applications of Work</p>
+            </div>
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Secure Access Code</label>
+                    <input type="password" id="accessCode" class="w-full px-4 py-3 border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none transition-all text-center text-xl tracking-widest text-slate-900 dark:text-white" placeholder="••••" maxlength="4" onkeypress="if(event.key === 'Enter') login()">
+                </div>
+                <button onclick="login()" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-3 rounded-lg shadow-md transition-colors">
+                    Authenticate
+                </button>
+                <p id="loginError" class="text-rose-500 text-sm text-center font-medium hidden-ui mt-2">Invalid Access Code.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div id="mainContent" class="hidden-ui flex-1 overflow-y-auto w-full pb-20 relative">
+        
+        <!-- Header -->
+        <header class="bg-white dark:bg-slate-800 shadow-sm border-b border-slate-200 dark:border-slate-700 sticky top-0 z-30">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
+                <div>
+                    <h1 class="text-2xl font-bold text-slate-900 dark:text-white">Work, Energy, & The Theorem</h1>
+                    <p class="text-sm text-slate-500 dark:text-slate-400 font-medium" id="studentNameDisplay">Student: Loading...</p>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <!-- Dark Mode Toggle -->
+                    <button onclick="toggleTheme()" class="p-2 rounded-full bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-amber-400 hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors" title="Toggle Dark Mode">
+                        <svg id="moon-icon" class="w-5 h-5 block dark:hidden" fill="currentColor" viewBox="0 0 20 20"><path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"></path></svg>
+                        <svg id="sun-icon" class="w-5 h-5 hidden dark:block" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z" clip-rule="evenodd"></path></svg>
+                    </button>
+                    <span class="hidden sm:inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-indigo-100 dark:bg-indigo-900/50 text-indigo-800 dark:text-indigo-200 border border-indigo-200 dark:border-indigo-800">
+                        Class Board Notes Transcribed
+                    </span>
+                </div>
+            </div>
+        </header>
+
+        <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+            
+            <!-- THEORY & BOARD NOTES SECTION -->
+            <section class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 p-6 md:p-8">
+                <h2 class="text-xl font-bold text-slate-800 dark:text-slate-100 border-b border-slate-200 dark:border-slate-700 pb-3 mb-6 flex items-center">
+                    <svg class="w-6 h-6 mr-2 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
+                    Part I: Work Done by a Force $\vec{F}$
+                </h2>
+                <div class="prose dark:prose-invert max-w-none text-slate-700 dark:text-slate-300 space-y-4 mb-8">
+                    <p>The mathematical definition of Work is the dot product of the Force vector and the Displacement vector. The SI unit for work is the <strong>Joule (J)</strong>.</p>
+                    <div class="bg-slate-50 dark:bg-slate-900 p-4 rounded-lg text-center text-lg font-semibold border border-slate-200 dark:border-slate-700 shadow-inner">
+                        $$W(\vec{F}) = \vec{F} \cdot \vec{d} = F \cdot d \cdot \cos\alpha$$
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 my-6">
+                        <div class="app-box bg-green-50 dark:bg-green-900/20 border-green-500">
+                            <h4 class="font-bold text-green-800 dark:text-green-300 mb-2">App 1: Motive Work</h4>
+                            <p class="text-sm">Calculate work done by $F=50\text{ N}$ moving $d=2\text{ m}$ at $\alpha=60^\circ$.</p>
+                            <p class="font-mono text-sm mt-2 font-semibold">$W(\vec{F}) = 50 \times 2 \times \cos(60^\circ)$</p>
+                            <p class="font-mono text-sm font-semibold text-green-700 dark:text-green-400">$W(\vec{F}) = 50\text{ J}$</p>
+                        </div>
+                        <div class="app-box bg-rose-50 dark:bg-rose-900/20 border-rose-500">
+                            <h4 class="font-bold text-rose-800 dark:text-rose-300 mb-2">App 2: Resistive Work</h4>
+                            <p class="text-sm">Calculate work done by friction force $f=10\text{ N}$ on $d=3\text{ m}$. ($\alpha = 180^\circ$)</p>
+                            <p class="font-mono text-sm mt-2 font-semibold">$W(\vec{f}) = 10 \times 3 \times \cos(180^\circ)$</p>
+                            <p class="font-mono text-sm font-semibold text-rose-700 dark:text-rose-400">$W(\vec{f}) = -30\text{ J}$</p>
+                        </div>
+                        <div class="app-box bg-slate-100 dark:bg-slate-700/50 border-slate-500">
+                            <h4 class="font-bold text-slate-800 dark:text-slate-200 mb-2">App 3: Zero Work</h4>
+                            <p class="text-sm">Calculate work done by Weight $W=40\text{ N}$ moving horizontally $d=5\text{ m}$.</p>
+                            <p class="font-mono text-sm mt-2 font-semibold">$W(\vec{W}) = 40 \times 5 \times \cos(90^\circ)$</p>
+                            <p class="font-mono text-sm font-semibold text-slate-700 dark:text-slate-300">$W(\vec{W}) = 0\text{ J}$</p>
+                        </div>
+                    </div>
+
+                    <!-- Dumbbell Case Study -->
+                    <h3 class="text-lg font-bold text-slate-800 dark:text-slate-100 mt-8 mb-4 border-l-4 border-indigo-500 pl-3">Case Study: The Dumbbell Workout</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                        <div class="p-4 rounded-xl border border-emerald-200 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-900/10 shadow-sm">
+                            <h4 class="font-bold text-emerald-800 dark:text-emerald-400 mb-2 flex items-center">
+                                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18"></path></svg>
+                                Lifting Upwards
+                            </h4>
+                            <p class="text-sm text-slate-700 dark:text-slate-300 mb-2">When you lift a weight, motion is UP.</p>
+                            <ul class="text-sm list-disc pl-5 space-y-1 text-slate-700 dark:text-slate-300">
+                                <li>Your arm pulls UP ($\alpha=0^\circ$) &rarr; <strong class="text-emerald-600 dark:text-emerald-400">Motive Work</strong>.</li>
+                                <li>Weight acts DOWN ($\alpha=180^\circ$) &rarr; <strong class="text-rose-600 dark:text-rose-400">Resistive Work</strong>.</li>
+                            </ul>
+                        </div>
+                        <div class="p-4 rounded-xl border border-rose-200 dark:border-rose-800 bg-rose-50 dark:bg-rose-900/10 shadow-sm">
+                            <h4 class="font-bold text-rose-800 dark:text-rose-400 mb-2 flex items-center">
+                                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"></path></svg>
+                                Lowering Downwards
+                            </h4>
+                            <p class="text-sm text-slate-700 dark:text-slate-300 mb-2">When you lower a weight, motion is DOWN.</p>
+                            <ul class="text-sm list-disc pl-5 space-y-1 text-slate-700 dark:text-slate-300">
+                                <li>Your arm pushes UP to support it ($\alpha=180^\circ$) &rarr; <strong class="text-rose-600 dark:text-rose-400">Resistive Work</strong>.</li>
+                                <li>Weight acts DOWN ($\alpha=0^\circ$) &rarr; <strong class="text-emerald-600 dark:text-emerald-400">Motive Work</strong>.</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <h2 class="text-xl font-bold text-slate-800 dark:text-slate-100 border-b border-slate-200 dark:border-slate-700 pb-3 mb-6 flex items-center">
+                    <svg class="w-6 h-6 mr-2 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                    Part II: Kinetic Energy (KE)
+                </h2>
+                <div class="prose dark:prose-invert max-w-none text-slate-700 dark:text-slate-300 space-y-4 mb-8">
+                    <div class="bg-slate-50 dark:bg-slate-900 p-4 rounded-lg text-center text-lg font-semibold border border-slate-200 dark:border-slate-700 shadow-inner">
+                        $$KE = \frac{1}{2} m v^2$$
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 my-6">
+                        <div class="app-box bg-blue-50 dark:bg-blue-900/20 border-blue-500">
+                            <h4 class="font-bold text-blue-800 dark:text-blue-300 mb-2">App 4: Calculating KE</h4>
+                            <p class="text-sm">Calculate the KE of a mass $m=2\text{ kg}$ moving at $v=3\text{ m/s}$.</p>
+                            <p class="font-mono text-sm mt-2">$KE = \frac{1}{2}(2)(3)^2 \implies \mathbf{KE = 9\text{ J}}$</p>
+                        </div>
+                        <div class="app-box bg-blue-50 dark:bg-blue-900/20 border-blue-500">
+                            <h4 class="font-bold text-blue-800 dark:text-blue-300 mb-2">App 5: Solving for Velocity & Mass</h4>
+                            <p class="text-sm">Using algebraic manipulation on the KE formula:</p>
+                            <div class="font-mono text-sm mt-2 space-y-2">
+                                <p>$v = \sqrt{\frac{2KE}{m}}$</p>
+                                <p>$m = \frac{2KE}{v^2}$</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <h2 class="text-xl font-bold text-slate-800 dark:text-slate-100 border-b border-slate-200 dark:border-slate-700 pb-3 mb-6 flex items-center">
+                    <svg class="w-6 h-6 mr-2 text-indigo-600 dark:text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17V7m0 10a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h2a2 2 0 012 2m0 10a2 2 0 002 2h2a2 2 0 002-2M9 7a2 2 0 012-2h2a2 2 0 012 2m0 10V7m0 10a2 2 0 002 2h2a2 2 0 002-2V7a2 2 0 00-2-2h-2a2 2 0 00-2 2"></path></svg>
+                    Part III & IV: Total Work & The Work-Energy Theorem
+                </h2>
+                <div class="prose dark:prose-invert max-w-none text-slate-700 dark:text-slate-300 space-y-4">
+                    <p>Total work ($W_{total}$) is the sum of the work done by all forces acting on an object. The <strong>Work-Energy Theorem</strong> states that this total net work is exactly equal to the change in the object's Kinetic Energy.</p>
+                    <div class="bg-slate-50 dark:bg-slate-900 p-4 rounded-lg text-center text-lg font-semibold border border-slate-200 dark:border-slate-700 shadow-inner">
+                        $$W_{total} = \Delta KE = KE_f - KE_i$$
+                    </div>
+                    
+                    <div class="app-box border-indigo-500 bg-indigo-50 dark:bg-indigo-900/20 mt-6">
+                        <h4 class="font-bold text-indigo-900 dark:text-indigo-300 mb-2">App 6: Calculating $W_{total}$ on a Crate</h4>
+                        <p class="text-sm mb-2">A crate is pulled by $F=100\text{ N}$ at $37^\circ$. Friction force $f=20\text{ N}$, mass $m=10\text{ kg}$, horizontal distance $d=5\text{ m}$.</p>
+                        <ul class="text-sm font-mono list-none space-y-1">
+                            <li>$W(\vec{F}) = 100 \times 5 \times \cos(37^\circ) \approx 400\text{ J}$</li>
+                            <li>$W(\vec{f}) = 20 \times 5 \times \cos(180^\circ) = -100\text{ J}$</li>
+                            <li>$W(\vec{N}) = W(\vec{W}) = 0\text{ J}$ <span class="text-xs text-slate-500 dark:text-slate-400">(since motion is horizontal)</span></li>
+                        </ul>
+                        <p class="font-mono font-bold text-indigo-700 dark:text-indigo-400 mt-2">$W_{total} = 400 - 100 + 0 + 0 = \mathbf{300\text{ J}}$</p>
+                    </div>
+
+                    <div class="app-box border-purple-500 bg-purple-50 dark:bg-purple-900/20">
+                        <h4 class="font-bold text-purple-900 dark:text-purple-300 mb-2">App 7: Applying the Theorem</h4>
+                        <p class="text-sm mb-2">From App 6, if the crate starts from rest ($KE_i = 0$), what is its final velocity $v_f$ after $5\text{ m}$?</p>
+                        <p class="font-mono text-sm">$W_{total} = KE_f - 0 \implies 300 = \frac{1}{2}(10)v_f^2$</p>
+                        <p class="font-mono text-sm">$300 = 5v_f^2 \implies v_f = \sqrt{60} \implies \mathbf{v_f \approx 7.74\text{ m/s}}$</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- SIMULATION MODULE -->
+            <section class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 p-6 md:p-8">
+                <h2 class="text-xl font-bold text-slate-800 dark:text-slate-100 border-b border-slate-200 dark:border-slate-700 pb-3 mb-6 flex items-center">
+                    <svg class="w-6 h-6 mr-2 text-rose-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 10l-2 1m0 0l-2-1m2 1v2.5M20 7l-2 1m2-1l-2-1m2 1v2.5M14 4l-2-1-2 1M4 7l2-1M4 7l2 1M4 7v2.5M12 21l-2-1m2 1l2-1m-2 1v-2.5M6 18l-2-1v-2.5M18 18l2-1v-2.5"></path></svg>
+                    RK4 Sandbox: Recreate App 6
+                </h2>
+                <p class="text-sm text-slate-600 dark:text-slate-400 mb-4">The simulation defaults match <strong>App 6 & 7</strong>. Adjust the raw frictional force ($f$) directly to observe its effect on Resistive Work.</p>
+                
+                <!-- Controls -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6 bg-slate-50 dark:bg-slate-900 p-5 rounded-xl border border-slate-200 dark:border-slate-700">
+                    <div>
+                        <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">Applied Force ($F$): <span id="val-F" class="text-rose-600 dark:text-rose-400 font-bold">100</span> N</label>
+                        <input type="range" id="slider-F" min="0" max="200" value="100" class="w-full">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">Angle ($\alpha$): <span id="val-theta" class="text-rose-600 dark:text-rose-400 font-bold">37</span>&deg;</label>
+                        <input type="range" id="slider-theta" min="-89" max="89" value="37" class="w-full">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">Friction Force ($f$): <span id="val-f" class="text-rose-600 dark:text-rose-400 font-bold">20</span> N</label>
+                        <input type="range" id="slider-f" min="0" max="100" step="1" value="20" class="w-full">
+                    </div>
+                    <div class="md:col-span-3 flex flex-col sm:flex-row justify-between items-center bg-white dark:bg-slate-800 p-3 rounded border border-slate-200 dark:border-slate-600">
+                        <div class="text-sm font-medium text-slate-700 dark:text-slate-300 mb-3 sm:mb-0">
+                            System: Mass ($m$) = 10 kg | Gravity ($g$) = 9.8 m/s&sup2;
+                        </div>
+                        <div class="space-x-3 w-full sm:w-auto flex justify-center">
+                            <button onclick="toggleSim()" id="btn-toggle" class="bg-rose-600 hover:bg-rose-700 text-white px-6 py-2 rounded-lg font-bold shadow-md transition-all flex-1 sm:flex-none">PLAY SIMULATION</button>
+                            <button onclick="resetSim()" class="bg-slate-200 hover:bg-slate-300 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-800 dark:text-slate-200 px-6 py-2 rounded-lg font-bold shadow-sm transition-all flex-1 sm:flex-none">RESET</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Canvas Visualizer -->
+                <canvas id="simCanvas" width="800" height="220" class="mb-6 shadow-inner border border-slate-300 dark:border-slate-600 bg-[#f1f5f9] dark:bg-slate-800 rounded-lg w-full"></canvas>
+
+                <!-- Double View Charts (Phase Space Removed) -->
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <div class="bg-white dark:bg-slate-800 p-4 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm">
+                        <h3 class="text-center font-bold text-sm text-slate-800 dark:text-slate-200 mb-2 bg-slate-50 dark:bg-slate-900 py-1 rounded">Time Domain ($x, v$ vs $t$)</h3>
+                        <div class="chart-container"><canvas id="chartTime"></canvas></div>
+                    </div>
+                    <div class="bg-white dark:bg-slate-800 p-4 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm">
+                        <h3 class="text-center font-bold text-sm text-slate-800 dark:text-slate-200 mb-2 bg-slate-50 dark:bg-slate-900 py-1 rounded">Energy Bar (Joules)</h3>
+                        <div class="chart-container"><canvas id="chartEnergy"></canvas></div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- QUIZ SECTION -->
+            <section class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 p-6 md:p-8">
+                <h2 class="text-xl font-bold text-slate-800 dark:text-slate-100 border-b border-slate-200 dark:border-slate-700 pb-3 mb-6 flex items-center">
+                    <svg class="w-6 h-6 mr-2 text-emerald-600 dark:text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path></svg>
+                    Knowledge Assessment
+                </h2>
+                
+                <form id="quizForm" class="space-y-6">
+                    
+                    <!-- Q1 -->
+                    <div id="q1-container" class="bg-slate-50 dark:bg-slate-900/50 p-5 rounded-xl border border-slate-200 dark:border-slate-700 transition-colors">
+                        <p class="font-semibold text-slate-800 dark:text-slate-200 mb-4 text-lg">1. A force $F=50\text{ N}$ acts at an angle $\alpha=60^\circ$ relative to the horizontal to move an object $2\text{ m}$. Calculate the work done by this force (App 1).</p>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            <label class="flex items-center space-x-3 p-3 bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-600 cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-700"><input type="radio" name="q1" value="A" class="form-radio h-5 w-5 text-emerald-600"><span class="text-slate-700 dark:text-slate-300 font-medium">A) $25\text{ J}$</span></label>
+                            <label class="flex items-center space-x-3 p-3 bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-600 cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-700"><input type="radio" name="q1" value="B" class="form-radio h-5 w-5 text-emerald-600"><span class="text-slate-700 dark:text-slate-300 font-medium">B) $50\text{ J}$</span></label>
+                            <label class="flex items-center space-x-3 p-3 bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-600 cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-700"><input type="radio" name="q1" value="C" class="form-radio h-5 w-5 text-emerald-600"><span class="text-slate-700 dark:text-slate-300 font-medium">C) $100\text{ J}$</span></label>
+                            <label class="flex items-center space-x-3 p-3 bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-600 cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-700"><input type="radio" name="q1" value="D" class="form-radio h-5 w-5 text-emerald-600"><span class="text-slate-700 dark:text-slate-300 font-medium">D) $0\text{ J}$</span></label>
+                        </div>
+                    </div>
+
+                    <!-- Q2 -->
+                    <div id="q2-container" class="bg-slate-50 dark:bg-slate-900/50 p-5 rounded-xl border border-slate-200 dark:border-slate-700 transition-colors">
+                        <p class="font-semibold text-slate-800 dark:text-slate-200 mb-4 text-lg">2. What is the work done by a friction force $f=10\text{ N}$ acting over a distance of $3\text{ m}$? (App 2)</p>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            <label class="flex items-center space-x-3 p-3 bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-600 cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-700"><input type="radio" name="q2" value="A" class="form-radio h-5 w-5 text-emerald-600"><span class="text-slate-700 dark:text-slate-300 font-medium">A) $-30\text{ J}$</span></label>
+                            <label class="flex items-center space-x-3 p-3 bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-600 cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-700"><input type="radio" name="q2" value="B" class="form-radio h-5 w-5 text-emerald-600"><span class="text-slate-700 dark:text-slate-300 font-medium">B) $30\text{ J}$</span></label>
+                            <label class="flex items-center space-x-3 p-3 bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-600 cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-700"><input type="radio" name="q2" value="C" class="form-radio h-5 w-5 text-emerald-600"><span class="text-slate-700 dark:text-slate-300 font-medium">C) $0\text{ J}$</span></label>
+                            <label class="flex items-center space-x-3 p-3 bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-600 cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-700"><input type="radio" name="q2" value="D" class="form-radio h-5 w-5 text-emerald-600"><span class="text-slate-700 dark:text-slate-300 font-medium">D) $-10\text{ J}$</span></label>
+                        </div>
+                    </div>
+
+                    <!-- Q3 -->
+                    <div id="q3-container" class="bg-slate-50 dark:bg-slate-900/50 p-5 rounded-xl border border-slate-200 dark:border-slate-700 transition-colors">
+                        <p class="font-semibold text-slate-800 dark:text-slate-200 mb-4 text-lg">3. When you lift a heavy dumbbell vertically upwards, what type of work does your upward arm force perform?</p>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            <label class="flex items-center space-x-3 p-3 bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-600 cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-700"><input type="radio" name="q3" value="A" class="form-radio h-5 w-5 text-emerald-600"><span class="text-slate-700 dark:text-slate-300 font-medium">A) Zero Work</span></label>
+                            <label class="flex items-center space-x-3 p-3 bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-600 cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-700"><input type="radio" name="q3" value="B" class="form-radio h-5 w-5 text-emerald-600"><span class="text-slate-700 dark:text-slate-300 font-medium">B) Motive Work</span></label>
+                            <label class="flex items-center space-x-3 p-3 bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-600 cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-700"><input type="radio" name="q3" value="C" class="form-radio h-5 w-5 text-emerald-600"><span class="text-slate-700 dark:text-slate-300 font-medium">C) Resistive Work</span></label>
+                            <label class="flex items-center space-x-3 p-3 bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-600 cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-700"><input type="radio" name="q3" value="D" class="form-radio h-5 w-5 text-emerald-600"><span class="text-slate-700 dark:text-slate-300 font-medium">D) Frictional Work</span></label>
+                        </div>
+                    </div>
+
+                    <!-- Q4 -->
+                    <div id="q4-container" class="bg-slate-50 dark:bg-slate-900/50 p-5 rounded-xl border border-slate-200 dark:border-slate-700 transition-colors">
+                        <p class="font-semibold text-slate-800 dark:text-slate-200 mb-4 text-lg">4. Calculate the Kinetic Energy ($KE$) of a $4\text{ kg}$ object moving at $3\text{ m/s}$.</p>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            <label class="flex items-center space-x-3 p-3 bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-600 cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-700"><input type="radio" name="q4" value="A" class="form-radio h-5 w-5 text-emerald-600"><span class="text-slate-700 dark:text-slate-300 font-medium">A) $6\text{ J}$</span></label>
+                            <label class="flex items-center space-x-3 p-3 bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-600 cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-700"><input type="radio" name="q4" value="B" class="form-radio h-5 w-5 text-emerald-600"><span class="text-slate-700 dark:text-slate-300 font-medium">B) $12\text{ J}$</span></label>
+                            <label class="flex items-center space-x-3 p-3 bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-600 cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-700"><input type="radio" name="q4" value="C" class="form-radio h-5 w-5 text-emerald-600"><span class="text-slate-700 dark:text-slate-300 font-medium">C) $18\text{ J}$</span></label>
+                            <label class="flex items-center space-x-3 p-3 bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-600 cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-700"><input type="radio" name="q4" value="D" class="form-radio h-5 w-5 text-emerald-600"><span class="text-slate-700 dark:text-slate-300 font-medium">D) $36\text{ J}$</span></label>
+                        </div>
+                    </div>
+
+                    <!-- Q5 -->
+                    <div id="q5-container" class="bg-slate-50 dark:bg-slate-900/50 p-5 rounded-xl border border-slate-200 dark:border-slate-700 transition-colors">
+                        <p class="font-semibold text-slate-800 dark:text-slate-200 mb-4 text-lg">5. An object is moving at $5\text{ m/s}$ and possesses exactly $100\text{ J}$ of Kinetic Energy. Calculate its mass ($m$).</p>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            <label class="flex items-center space-x-3 p-3 bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-600 cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-700"><input type="radio" name="q5" value="A" class="form-radio h-5 w-5 text-emerald-600"><span class="text-slate-700 dark:text-slate-300 font-medium">A) $40\text{ kg}$</span></label>
+                            <label class="flex items-center space-x-3 p-3 bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-600 cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-700"><input type="radio" name="q5" value="B" class="form-radio h-5 w-5 text-emerald-600"><span class="text-slate-700 dark:text-slate-300 font-medium">B) $8\text{ kg}$</span></label>
+                            <label class="flex items-center space-x-3 p-3 bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-600 cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-700"><input type="radio" name="q5" value="C" class="form-radio h-5 w-5 text-emerald-600"><span class="text-slate-700 dark:text-slate-300 font-medium">C) $20\text{ kg}$</span></label>
+                            <label class="flex items-center space-x-3 p-3 bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-600 cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-700"><input type="radio" name="q5" value="D" class="form-radio h-5 w-5 text-emerald-600"><span class="text-slate-700 dark:text-slate-300 font-medium">D) $10\text{ kg}$</span></label>
+                        </div>
+                    </div>
+                    
+                    <!-- Q6 -->
+                    <div id="q6-container" class="bg-slate-50 dark:bg-slate-900/50 p-5 rounded-xl border border-slate-200 dark:border-slate-700 transition-colors">
+                        <p class="font-semibold text-slate-800 dark:text-slate-200 mb-4 text-lg">6. A $4\text{ kg}$ block possesses $32\text{ J}$ of Kinetic Energy. Calculate its velocity ($v$).</p>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            <label class="flex items-center space-x-3 p-3 bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-600 cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-700"><input type="radio" name="q6" value="A" class="form-radio h-5 w-5 text-emerald-600"><span class="text-slate-700 dark:text-slate-300 font-medium">A) $16\text{ m/s}$</span></label>
+                            <label class="flex items-center space-x-3 p-3 bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-600 cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-700"><input type="radio" name="q6" value="B" class="form-radio h-5 w-5 text-emerald-600"><span class="text-slate-700 dark:text-slate-300 font-medium">B) $8\text{ m/s}$</span></label>
+                            <label class="flex items-center space-x-3 p-3 bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-600 cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-700"><input type="radio" name="q6" value="C" class="form-radio h-5 w-5 text-emerald-600"><span class="text-slate-700 dark:text-slate-300 font-medium">C) $4\text{ m/s}$</span></label>
+                            <label class="flex items-center space-x-3 p-3 bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-600 cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-700"><input type="radio" name="q6" value="D" class="form-radio h-5 w-5 text-emerald-600"><span class="text-slate-700 dark:text-slate-300 font-medium">D) $2\text{ m/s}$</span></label>
+                        </div>
+                    </div>
+
+                    <div id="submitMsg" class="hidden-ui p-5 rounded-xl bg-blue-50 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300 border border-blue-200 dark:border-blue-800 font-medium text-center">
+                        <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-blue-800 dark:text-blue-400 inline-block" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                        Transmitting payload to Smart-Sheet Backend...
+                    </div>
+
+                    <button type="button" onclick="submitWorksheet()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-4 rounded-xl shadow-lg transition-all text-xl flex justify-center items-center transform hover:-translate-y-1">
+                        <svg class="w-7 h-7 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                        Submit Assessment
+                    </button>
+                </form>
+            </section>
+            
+            <!-- Architect Stamp -->
+            <div class="flex justify-center items-center opacity-60 dark:opacity-40 pb-6 pointer-events-none">
+                <div class="flex items-center space-x-2 border-2 border-slate-400 dark:border-slate-500 rounded-full px-6 py-2">
+                    <svg class="w-6 h-6 text-indigo-600 dark:text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"></path></svg>
+                    <span class="font-bold text-sm tracking-wider uppercase text-slate-600 dark:text-slate-300">Prepared by Rabih A.G.</span>
+                </div>
+            </div>
+            
+        </main>
+    </div>
+
+    <script>
+        // --- THEME TOGGLE ---
+        function toggleTheme() {
+            document.documentElement.classList.toggle('dark');
+            updateChartColors();
+            if(!isRunning) drawFrame();
+        }
+
+        // --- 1. SECURITY & DATABASE MODULE ---
+        const CONFIG = {
+            url: "https://script.google.com/macros/s/AKfycbwi6mohSrHkJ2iuQuLvg-EgEjYuAdrtNRyI9NgtljuNdgfzjUR-gKTvO7O889fNguAiiQ/exec",
+            topic: "Work and Energy: Work-Energy Theorem"
+        };
+
+        const GRADE_11_DB = {
+            "3580": "احمد / محمد / الخالد",
+            "7732": "احمد / هيثم / سبلبل",
+            "5294": "امير خالد / وليد / مهتدي",
+            "8738": "انطون / عبد الله / مشحم",
+            "5644": "بسام / محمد / طالب",
+            "7808": "زكريا / مصطفى / مراد",
+            "8893": "عبد العزيز / ناصر / عساف",
+            "8900": "عمر / كمال / باليقه",
+            "7749": "كامل / احمد / رنو",
+            "8073": "محمد علي / محمد / الرفاعي",
+            "3098": "ميار / حسام الدين / ديري",
+            "8597": "هادي / عمر / قره علي",
+            "6722": "هاني / عمر / ابراهيم",
+            "7439": "يحيى / زيد / حمزة",
+            "3655": "يحيى / ماهر / مراد",
+            "6634": "يوسف / منير / ابراهيم"
+        };
+
+        let currentUser = "";
+
+        function login() {
+            const code = document.getElementById("accessCode").value;
+            const errorMsg = document.getElementById("loginError");
+            
+            if (code === "0000") {
+                currentUser = "Admin Override";
+            } else if (code === "1111") {
+                currentUser = "Tutor Override";
+            } else if (GRADE_11_DB[code]) {
+                currentUser = GRADE_11_DB[code];
+            } else {
+                errorMsg.classList.remove("hidden-ui");
+                return;
+            }
+
+            document.getElementById("loginOverlay").classList.add("hidden-ui");
+            document.getElementById("mainContent").classList.remove("hidden-ui");
+            document.getElementById("studentNameDisplay").innerText = "Student: " + currentUser;
+            
+            if(window.MathJax) MathJax.typesetPromise();
+            
+            initCharts();
+            resetSim();
+        }
+
+        // --- 2. PEDAGOGY MODULE: RK4 SIMULATION ---
+        const canvas = document.getElementById("simCanvas");
+        const ctx = canvas.getContext("2d");
+
+        const m = 10; // kg
+        const g = 9.8; // m/s^2
+        
+        let state = { x: 0, v: 0, t: 0 };
+        let isRunning = false;
+        let animationId;
+        let lastTime = 0;
+        
+        const uiF = document.getElementById('slider-F');
+        const uiTheta = document.getElementById('slider-theta');
+        const uiFriction = document.getElementById('slider-f');
+        
+        [uiF, uiTheta, uiFriction].forEach(el => {
+            el.addEventListener('input', () => {
+                document.getElementById(`val-${el.id.split('-')[1]}`).innerText = el.value;
+                if(!isRunning) drawFrame();
+            });
+        });
+
+        function getAcceleration(x, v) {
+            const F = parseFloat(uiF.value);
+            const theta_rad = parseFloat(uiTheta.value) * Math.PI / 180;
+            
+            let F_ax = F * Math.cos(theta_rad);
+            let F_ay = F * Math.sin(theta_rad);
+            
+            let N = m * g - F_ay;
+            if (N < 0) N = 0; 
+            
+            // Only apply friction if touching the ground
+            let f_k = N > 0 ? parseFloat(uiFriction.value) : 0;
+            
+            if (Math.abs(v) < 0.01) {
+                if (Math.abs(F_ax) <= f_k) return 0;
+            }
+            
+            let frictionDirection = v > 0 ? -1 : (v < 0 ? 1 : Math.sign(F_ax));
+            let F_net = F_ax + (frictionDirection * f_k);
+            
+            if (v === 0 && Math.sign(F_net) !== Math.sign(F_ax)) return 0; 
+
+            return F_net / m;
+        }
+
+        function rk4Step(dt) {
+            let x0 = state.x, v0 = state.v;
+            
+            let k1v = getAcceleration(x0, v0);
+            let k1x = v0;
+            
+            let k2v = getAcceleration(x0 + k1x * dt/2, v0 + k1v * dt/2);
+            let k2x = v0 + k1v * dt/2;
+            
+            let k3v = getAcceleration(x0 + k2x * dt/2, v0 + k2v * dt/2);
+            let k3x = v0 + k2v * dt/2;
+            
+            let k4v = getAcceleration(x0 + k3x * dt, v0 + k3v * dt);
+            let k4x = v0 + k3v * dt;
+            
+            state.v += (dt/6) * (k1v + 2*k2v + 2*k3v + k4v);
+            state.x += (dt/6) * (k1x + 2*k2x + 2*k3x + k4x);
+            state.t += dt;
+
+            if(state.v < 0 && state.x <= 0) { state.v = 0; state.x = 0; }
+        }
+
+        function calculateEnergies() {
+            const F = parseFloat(uiF.value);
+            const theta_rad = parseFloat(uiTheta.value) * Math.PI / 180;
+            
+            let F_ax = F * Math.cos(theta_rad);
+            let F_ay = F * Math.sin(theta_rad);
+            let N = Math.max(0, m * g - F_ay);
+            let f_k = N > 0 ? parseFloat(uiFriction.value) : 0;
+            
+            let W_F = F_ax * state.x; 
+            let W_f = -f_k * state.x; 
+            
+            if (state.x === 0) { W_F = 0; W_f = 0; }
+
+            let W_net = W_F + W_f;
+            let KE = 0.5 * m * state.v * state.v;
+
+            return { W_F, W_f, W_net, KE };
+        }
+
+        function drawArrow(fromX, fromY, toX, toY, color, label, isDark) {
+            const headlen = 12; 
+            const dx = toX - fromX;
+            const dy = toY - fromY;
+            const angle = Math.atan2(dy, dx);
+            
+            ctx.beginPath();
+            ctx.moveTo(fromX, fromY);
+            ctx.lineTo(toX, toY);
+            ctx.lineTo(toX - headlen * Math.cos(angle - Math.PI / 6), toY - headlen * Math.sin(angle - Math.PI / 6));
+            ctx.moveTo(toX, toY);
+            ctx.lineTo(toX - headlen * Math.cos(angle + Math.PI / 6), toY - headlen * Math.sin(angle + Math.PI / 6));
+            ctx.strokeStyle = color;
+            ctx.lineWidth = 3;
+            ctx.stroke();
+            
+            ctx.fillStyle = color;
+            ctx.font = "bold 14px Inter";
+            ctx.fillText(label, toX + 5, toY - 5);
+        }
+
+        function drawFrame() {
+            const isDark = document.documentElement.classList.contains('dark');
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            const scale = 25; 
+            const groundY = 170;
+            const blockW = 50, blockH = 40;
+            let screenX = 50 + state.x * scale;
+            
+            if (screenX > canvas.width - 60) {
+                screenX = (screenX % (canvas.width - 110)) + 50;
+            }
+
+            // Grid Lines (every 1 meter)
+            ctx.strokeStyle = isDark ? "#334155" : "#e2e8f0";
+            ctx.lineWidth = 1;
+            for(let i=0; i<canvas.width; i+=scale) {
+                ctx.beginPath(); ctx.moveTo(i, 0); ctx.lineTo(i, groundY); ctx.stroke();
+            }
+
+            // Ground
+            ctx.beginPath();
+            ctx.moveTo(0, groundY);
+            ctx.lineTo(canvas.width, groundY);
+            ctx.strokeStyle = isDark ? "#475569" : "#64748b";
+            ctx.lineWidth = 4;
+            ctx.stroke();
+
+            // Crate
+            ctx.fillStyle = isDark ? "#4f46e5" : "#6366f1";
+            ctx.fillRect(screenX, groundY - blockH, blockW, blockH);
+            ctx.strokeStyle = isDark ? "#3730a3" : "#4338ca";
+            ctx.strokeRect(screenX, groundY - blockH, blockW, blockH);
+
+            const cx = screenX + blockW/2;
+            const cy = groundY - blockH/2;
+            
+            const F = parseFloat(uiF.value);
+            const theta_rad = parseFloat(uiTheta.value) * Math.PI / 180;
+            
+            // Forces
+            if (F > 0) {
+                let fx = cx + F * Math.cos(theta_rad);
+                let fy = cy - F * Math.sin(theta_rad); 
+                drawArrow(cx, cy, fx, fy, isDark ? "#34d399" : "#10b981", "F", isDark);
+            }
+            
+            drawArrow(cx, cy, cx, cy + 40, isDark ? "#f87171" : "#ef4444", "W", isDark);
+            
+            const F_ay = F * Math.sin(theta_rad);
+            const N = Math.max(0, m * g - F_ay);
+            if (N > 0) drawArrow(cx, cy, cx, cy - (N > 50 ? 50 : N), isDark ? "#fcd34d" : "#eab308", "N", isDark);
+            
+            const f = parseFloat(uiFriction.value);
+            if (f > 0 && N > 0 && Math.abs(state.v) > 0.01) {
+                drawArrow(cx, groundY, cx - 40, groundY, isDark ? "#fb923c" : "#f97316", "f", isDark);
+            }
+            
+            // Metrics Overlay
+            ctx.fillStyle = isDark ? "rgba(30,41,59,0.85)" : "rgba(255,255,255,0.85)";
+            ctx.fillRect(10, 10, 150, 70);
+            ctx.fillStyle = isDark ? "#f8fafc" : "#1e293b";
+            ctx.font = "bold 13px monospace";
+            ctx.fillText(`x: ${state.x.toFixed(2)} m`, 15, 30);
+            ctx.fillText(`v: ${state.v.toFixed(2)} m/s`, 15, 50);
+            ctx.fillText(`t: ${state.t.toFixed(2)} s`, 15, 70);
+        }
+
+        // --- 3. CHARTS MODULE ---
+        let chartTime, chartEnergy;
+
+        function initCharts() {
+            Chart.defaults.font.family = 'Inter';
+            const isDark = document.documentElement.classList.contains('dark');
+            const textColor = isDark ? '#cbd5e1' : '#475569';
+            
+            const ctxTime = document.getElementById('chartTime').getContext('2d');
+            chartTime = new Chart(ctxTime, {
+                type: 'line',
+                data: { labels: [], datasets: [
+                    { label: 'Position (m)', borderColor: '#3b82f6', data: [], pointRadius: 0, tension: 0.3, borderWidth: 2 },
+                    { label: 'Velocity (m/s)', borderColor: '#10b981', data: [], pointRadius: 0, tension: 0.3, borderWidth: 2 }
+                ]},
+                options: { 
+                    responsive: true, maintainAspectRatio: false, animation: false, 
+                    plugins: { legend: { position: 'bottom', labels: { color: textColor } } }, 
+                    scales: { 
+                        x: { title: { display: true, text: 'Time (s)', color: textColor }, ticks: { color: textColor } },
+                        y: { ticks: { color: textColor } }
+                    } 
+                }
+            });
+
+            const ctxEnergy = document.getElementById('chartEnergy').getContext('2d');
+            chartEnergy = new Chart(ctxEnergy, {
+                type: 'bar',
+                data: { 
+                    labels: ['W(F)', 'W(f)', 'W_net', 'KE'], 
+                    datasets: [{ label: 'Joules', data: [0, 0, 0, 0], backgroundColor: ['#10b981', '#ef4444', '#f59e0b', '#3b82f6'], borderRadius: 4 }] 
+                },
+                options: { 
+                    responsive: true, maintainAspectRatio: false, animation: { duration: 100 }, 
+                    plugins: { legend: { display: false } }, 
+                    scales: { 
+                        x: { ticks: { color: textColor } },
+                        y: { beginAtZero: true, ticks: { color: textColor } } 
+                    } 
+                }
+            });
+        }
+
+        function updateChartColors() {
+            if(!chartTime || !chartEnergy) return;
+            const isDark = document.documentElement.classList.contains('dark');
+            const textColor = isDark ? '#cbd5e1' : '#475569';
+            
+            chartTime.options.plugins.legend.labels.color = textColor;
+            chartTime.options.scales.x.ticks.color = textColor;
+            chartTime.options.scales.x.title.color = textColor;
+            chartTime.options.scales.y.ticks.color = textColor;
+            chartTime.update();
+            
+            chartEnergy.options.scales.x.ticks.color = textColor;
+            chartEnergy.options.scales.y.ticks.color = textColor;
+            chartEnergy.update();
+        }
+
+        function updateCharts() {
+            const energies = calculateEnergies();
+            
+            chartTime.data.labels.push(state.t.toFixed(1));
+            chartTime.data.datasets[0].data.push(state.x);
+            chartTime.data.datasets[1].data.push(state.v);
+            if (chartTime.data.labels.length > 60) {
+                chartTime.data.labels.shift();
+                chartTime.data.datasets[0].data.shift();
+                chartTime.data.datasets[1].data.shift();
+            }
+            chartTime.update();
+
+            chartEnergy.data.datasets[0].data = [energies.W_F, energies.W_f, energies.W_net, energies.KE];
+            chartEnergy.update();
+        }
+
+        let lastChartUpdate = 0;
+        function simLoop(timestamp) {
+            if (!isRunning) return;
+            
+            let dt = lastTime ? (timestamp - lastTime) / 1000 : 0.016;
+            if(dt > 0.1) dt = 0.1;
+            lastTime = timestamp;
+
+            const steps = 10;
+            const sub_dt = dt / steps;
+            for(let i=0; i<steps; i++) rk4Step(sub_dt);
+
+            drawFrame();
+            
+            if (timestamp - lastChartUpdate > 100) {
+                updateCharts();
+                lastChartUpdate = timestamp;
+            }
+
+            animationId = requestAnimationFrame(simLoop);
+        }
+
+        function toggleSim() {
+            isRunning = !isRunning;
+            const btn = document.getElementById('btn-toggle');
+            if (isRunning) {
+                btn.innerText = "PAUSE";
+                btn.classList.replace("bg-rose-600", "bg-amber-500");
+                btn.classList.replace("hover:bg-rose-700", "hover:bg-amber-600");
+                lastTime = performance.now();
+                animationId = requestAnimationFrame(simLoop);
+            } else {
+                btn.innerText = "PLAY SIMULATION";
+                btn.classList.replace("bg-amber-500", "bg-rose-600");
+                btn.classList.replace("hover:bg-amber-600", "hover:bg-rose-700");
+                cancelAnimationFrame(animationId);
+            }
+        }
+
+        function resetSim() {
+            isRunning = false;
+            cancelAnimationFrame(animationId);
+            
+            const btn = document.getElementById('btn-toggle');
+            btn.innerText = "PLAY SIMULATION";
+            btn.classList.remove("bg-amber-500", "hover:bg-amber-600");
+            btn.classList.add("bg-rose-600", "hover:bg-rose-700");
+
+            state = { x: 0, v: 0, t: 0 };
+            lastTime = 0;
+            
+            if(chartTime) {
+                chartTime.data.labels = [];
+                chartTime.data.datasets.forEach(ds => ds.data = []);
+                chartTime.update();
+                
+                chartEnergy.data.datasets[0].data = [0, 0, 0, 0];
+                chartEnergy.update();
+            }
+
+            drawFrame();
+        }
+
+        // --- 4. UNIVERSAL PHYSICS CLASS SCRIPT PROTOCOL ---
+        const ANSWER_KEY = { q1: "B", q2: "A", q3: "B", q4: "C", q5: "B", q6: "C" };
+
+        async function submitWorksheet() {
+            if (!currentUser) return;
+
+            const form = document.getElementById('quizForm');
+            const formData = new FormData(form);
+            let score = 0;
+            let total = Object.keys(ANSWER_KEY).length;
+            let details = [];
+
+            // Reset borders
+            for (let q of Object.keys(ANSWER_KEY)) {
+                let container = document.getElementById(q + '-container');
+                container.classList.remove('border-green-500', 'bg-green-50', 'dark:bg-green-900/20', 'border-rose-500', 'bg-rose-50', 'dark:bg-rose-900/20');
+                container.classList.add('border-slate-200', 'dark:border-slate-700', 'bg-slate-50', 'dark:bg-slate-900/50');
+            }
+
+            for (let [q, correctAns] of Object.entries(ANSWER_KEY)) {
+                let userAns = formData.get(q);
+                let container = document.getElementById(q + '-container');
+                
+                if (userAns === correctAns) {
+                    score++;
+                    details.push(`${q.toUpperCase()}: ${userAns} (Correct)`);
+                    container.classList.add('border-green-500', 'bg-green-50', 'dark:bg-green-900/20');
+                    container.classList.remove('border-slate-200', 'dark:border-slate-700', 'bg-slate-50', 'dark:bg-slate-900/50');
+                } else {
+                    details.push(`${q.toUpperCase()}: ${userAns || 'None'} (Incorrect)`);
+                    container.classList.add('border-rose-500', 'bg-rose-50', 'dark:bg-rose-900/20');
+                    container.classList.remove('border-slate-200', 'dark:border-slate-700', 'bg-slate-50', 'dark:bg-slate-900/50');
+                }
+            }
+
+            const payload = {
+                name: currentUser,
+                topic: CONFIG.topic,
+                score: `${score}/${total}`,
+                answers: details.join(", ")
+            };
+
+            const submitMsg = document.getElementById('submitMsg');
+            submitMsg.classList.remove('hidden-ui');
+            submitMsg.innerHTML = `<svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-blue-800 dark:text-blue-400 inline-block" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> Transmitting payload to Smart-Sheet Backend...`;
+            submitMsg.className = "p-5 rounded-xl font-medium text-center bg-blue-50 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300 border border-blue-200 dark:border-blue-800";
+
+            try {
+                await fetch(CONFIG.url, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                    body: JSON.stringify(payload)
+                });
+                
+                submitMsg.innerHTML = `<svg class="w-6 h-6 mr-2 inline-block text-emerald-600 dark:text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg> Assessment submitted successfully! Your score: ${score}/${total}`;
+                submitMsg.className = "p-5 rounded-xl font-medium text-center bg-emerald-50 dark:bg-emerald-900/30 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800";
+            } catch (err) {
+                console.error(err);
+                submitMsg.innerHTML = `<svg class="w-6 h-6 mr-2 inline-block text-rose-600 dark:text-rose-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg> Error transmitting to server. Please check your connection.`;
+                submitMsg.className = "p-5 rounded-xl font-medium text-center bg-rose-50 dark:bg-rose-900/30 text-rose-800 dark:text-rose-300 border border-rose-200 dark:border-rose-800";
+            }
+        }
+    </script>
+</body>
+</html>
