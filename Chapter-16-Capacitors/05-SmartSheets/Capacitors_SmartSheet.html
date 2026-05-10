@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>G11 Physics: Capacitors & RC Circuits</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; scroll-behavior: smooth; }
+        .glass-panel {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        input[type="radio"]:checked + div {
+            border-color: #3b82f6;
+            background-color: rgba(59, 130, 246, 0.1);
+        }
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #0f172a; }
+        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #475569; }
+    </style>
+</head>
+<body class="bg-slate-900 text-slate-200 min-h-screen flex flex-col">
+
+    <!-- LOGIN OVERLAY -->
+    <div id="loginOverlay" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/90 backdrop-blur-sm transition-opacity duration-300">
+        <div class="glass-panel p-8 rounded-2xl w-full max-w-md mx-4 shadow-2xl transform transition-transform duration-300 scale-100">
+            <div class="text-center mb-8">
+                <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-blue-500/20 text-blue-400 mb-4">
+                    <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
+                </div>
+                <h2 class="text-2xl font-bold text-white">Smart-Sheet Portal</h2>
+                <p class="text-slate-400 text-sm mt-2">Grade 11 Physics Module</p>
+            </div>
+            
+            <form id="loginForm" class="space-y-6">
+                <div>
+                    <label class="block text-sm font-medium text-slate-300 mb-2">4-Digit Access Code</label>
+                    <input type="password" id="accessCode" maxlength="4" pattern="\d{4}" autocomplete="off" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-3 text-center text-2xl tracking-[0.5em] text-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all placeholder-slate-600" placeholder="••••" required>
+                </div>
+                <div id="loginError" class="hidden bg-red-500/10 border border-red-500/50 text-red-400 text-sm px-4 py-3 rounded-lg flex items-center">
+                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    <span>Invalid Access Code. Try again.</span>
+                </div>
+                <button type="submit" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-semibold py-3 rounded-xl shadow-lg shadow-blue-500/30 transition-all duration-200 active:scale-[0.98]">
+                    Authenticate
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- MAIN APP CONTAINER -->
+    <div id="mainApp" class="hidden flex-1 flex flex-col max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+        
+        <!-- HEADER -->
+        <header class="flex flex-col md:flex-row justify-between items-start md:items-center glass-panel p-6 rounded-2xl">
+            <div>
+                <h1 class="text-2xl md:text-3xl font-bold text-white flex items-center">
+                    <svg class="w-8 h-8 mr-3 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                    Capacitors & RC Transients
+                </h1>
+                <p class="text-slate-400 mt-1">Worksheet | Assessment Module</p>
+            </div>
+            <div class="mt-4 md:mt-0 flex items-center space-x-4 bg-slate-800/50 px-5 py-3 rounded-xl border border-slate-700">
+                <div class="h-10 w-10 rounded-full bg-gradient-to-tr from-blue-500 to-purple-500 flex items-center justify-center text-white font-bold shadow-lg" id="avatarInitials">ST</div>
+                <div>
+                    <p class="text-sm text-slate-400">Authenticated Student</p>
+                    <p class="font-semibold text-white" id="studentNameDisplay">Loading...</p>
+                </div>
+            </div>
+        </header>
+
+        <!-- QUIZ MODULE -->
+        <section class="glass-panel p-6 rounded-2xl border-t-4 border-t-blue-500 relative">
+            <h2 class="text-2xl font-bold text-white mb-2">Assessment</h2>
+            <p class="text-slate-400 mb-8 pb-4 border-b border-slate-700">Select the correct answer for each multiple-choice question.</p>
+            
+            <form id="quizForm" class="space-y-8">
+                <!-- Dynamically Generated Questions Go Here -->
+                <div id="questionsContainer" class="space-y-10"></div>
+
+                <div class="pt-8 mt-8 border-t border-slate-700 flex justify-end">
+                    <button type="submit" class="bg-blue-600 hover:bg-blue-500 text-white font-bold py-4 px-10 rounded-xl shadow-lg shadow-blue-500/30 transition-all duration-200 flex items-center">
+                        <span>Submit Worksheet</span>
+                        <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+                    </button>
+                </div>
+            </form>
+            
+            <!-- Loading Overlay during Submit -->
+            <div id="submitOverlay" class="hidden absolute inset-0 bg-slate-900/80 backdrop-blur-sm rounded-2xl z-10 flex flex-col items-center justify-center">
+                <div class="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-blue-500 mb-4"></div>
+                <p class="text-white font-semibold">Transmitting to Server...</p>
+            </div>
+        </section>
+
+        <!-- FOOTER -->
+        <footer class="text-center text-slate-500 text-sm pb-8">
+            <p>Smart-Sheet Architect v2.2.0 &copy; 2026. By Rabih A.G. | Data governed by Physics Department.</p>
+        </footer>
+
+    </div>
+
+    <!-- SUBMISSION MODAL -->
+    <div id="resultModal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-slate-950/90 backdrop-blur-sm transition-opacity">
+        <div class="glass-panel p-8 rounded-2xl w-full max-w-md mx-4 shadow-2xl text-center">
+            <div id="resultIcon" class="inline-flex items-center justify-center w-20 h-20 rounded-full bg-green-500/20 text-green-400 mb-4">
+                <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+            </div>
+            <h2 class="text-3xl font-bold text-white mb-2">Quiz Submitted!</h2>
+            <p class="text-slate-400 mb-6">Your answers have been securely recorded.</p>
+            <div class="bg-slate-800/50 rounded-xl p-4 mb-8">
+                <p class="text-sm text-slate-400 uppercase tracking-wide">Final Score</p>
+                <p id="resultScore" class="text-5xl font-bold text-white mt-1">--/14</p>
+            </div>
+            <button onclick="location.reload()" class="w-full bg-slate-700 hover:bg-slate-600 text-white font-semibold py-3 rounded-xl transition-colors">
+                Close & Restart
+            </button>
+        </div>
+    </div>
+
+    <script>
+        /** * CONFIGURATION & DATABASE 
+         */
+        const CONFIG = {
+            url: 'https://script.google.com/macros/s/AKfycbwi6mohSrHkJ2iuQuLvg-EgEjYuAdrtNRyI9NgtljuNdgfzjUR-gKTvO7O889fNguAiiQ/exec',
+            topic: 'Capacitors & RC Transients (G11)'
+        };
+
+        const studentsDB = {
+            "0000": "Admin Override",
+            "1111": "Tutor Override",
+            "3580": "احمد / محمد / الخالد",
+            "7732": "احمد / هيثم / سبلبل",
+            "5294": "امير خالد / وليد / مهتدي",
+            "8738": "انطون / عبد الله / مشحم",
+            "5644": "بسام / محمد / طالب",
+            "7808": "زكريا / مصطفى / مراد",
+            "8893": "عبد العزيز / ناصر / عساف",
+            "8900": "عمر / كمال / باليقه",
+            "7749": "كامل / احمد / رنو",
+            "8073": "محمد علي / محمد / الرفاعي",
+            "3098": "ميار / حسام الدين / ديري",
+            "8597": "هادي / عمر / قره علي",
+            "6722": "هاني / عمر / ابراهيم",
+            "7439": "يحيى / زيد / حمزة",
+            "3655": "يحيى / ماهر / مراد",
+            "6634": "يوسف / منير / ابراهيم"
+        };
+
+        let currentUser = null;
+
+        /**
+         * QUIZ DATA MODULE
+         */
+        const quizData = [
+            {
+                q: "1. The conducting plates of a capacitor are specifically termed ______ and the insulating medium is called ______.",
+                options: ["A) Armatures, Dielectric", "B) Electrodes, Vacuum", "C) Terminals, Conductor", "D) Poles, Resistor"],
+                ans: "A"
+            },
+            {
+                q: "2. A capacitor of 8 &mu;F is connected across a 10 V source. What is the stored charge?",
+                options: ["A) 40 &mu;C", "B) 80 &mu;C", "C) 100 &mu;C", "D) 1.25 &mu;C"],
+                ans: "B"
+            },
+            {
+                q: "3. Calculate the energy stored in a 20 &mu;F capacitor charged to 10 V.",
+                options: ["A) 1 mJ", "B) 2 mJ", "C) 10 mJ", "D) 0.5 mJ"],
+                ans: "A" // 0.5 * 20e-6 * 100 = 1000 uJ = 1 mJ
+            },
+            {
+                q: "4. A parallel plate capacitor has square plates of side 0.2 m separated by 0.004 m of air (&epsilon;<sub>0</sub> = 8.85 &times; 10<sup>-12</sup> F/m). Its capacitance is:",
+                options: ["A) 44.25 pF", "B) 88.5 pF", "C) 17.7 pF", "D) 100 pF"],
+                ans: "B" // 8.85e-12 * 0.04 / 0.004 = 88.5 pF
+            },
+            {
+                q: "5. Introducing a dielectric with relative permittivity &epsilon;<sub>r</sub> = 6.2 increases the original vacuum capacitance C<sub>0</sub> to:",
+                options: ["A) C<sub>0</sub> / 6.2", "B) 6.2 C<sub>0</sub>", "C) C<sub>0</sub> + 6.2", "D) 3.1 C<sub>0</sub>"],
+                ans: "B"
+            },
+            {
+                q: "6. Find the equivalent capacitance of two capacitors 6 &mu;F and 12 &mu;F connected in series.",
+                options: ["A) 18 &mu;F", "B) 4 &mu;F", "C) 2 &mu;F", "D) 9 &mu;F"],
+                ans: "B"
+            },
+            {
+                q: "7. Two capacitors are in parallel. One is 8 &mu;F and the equivalent capacitance is 20 &mu;F. The other is:",
+                options: ["A) 12 &mu;F", "B) 28 &mu;F", "C) 160 &mu;F", "D) 5.7 &mu;F"],
+                ans: "A"
+            },
+            {
+                q: "8. An RC circuit has R = 50 k&Omega; and C = 40 &mu;F. The time constant &tau; is:",
+                options: ["A) 0.2 s", "B) 2.0 s", "C) 20 s", "D) 1.25 s"],
+                ans: "B"
+            },
+            {
+                q: "9. During charging with a 20 V source, the voltage across the capacitor after one time constant has elapsed is approximately:",
+                options: ["A) 10.0 V", "B) 12.6 V", "C) 17.3 V", "D) 7.4 V"],
+                ans: "B" // 20 * 0.63 = 12.6
+            },
+            {
+                q: "10. During discharge from an initial 50 V, the voltage remaining after one time constant is roughly:",
+                options: ["A) 25.0 V", "B) 18.5 V", "C) 31.5 V", "D) 5.0 V"],
+                ans: "B" // 50 * 0.37 = 18.5
+            },
+            {
+                q: "11. If the surface area S of a parallel-plate capacitor is doubled, its capacitance:",
+                options: ["A) Halves", "B) Doubles", "C) Quadruples", "D) Remains the same"],
+                ans: "B"
+            },
+            {
+                q: "12. Because W = &frac12; C U<sup>2</sup>, if the applied voltage is halved, the stored energy becomes:",
+                options: ["A) W/2", "B) W/4", "C) 2W", "D) 4W"],
+                ans: "B"
+            },
+            {
+                q: "13. Capacitors C<sub>1</sub> = 12 &mu;F and C<sub>2</sub> = 6 &mu;F are in series. This branch is in parallel with C<sub>3</sub> = 6 &mu;F. The total equivalent capacitance is:",
+                options: ["A) 24 &mu;F", "B) 10 &mu;F", "C) 4 &mu;F", "D) 18 &mu;F"],
+                ans: "B" // (12*6)/(18) = 4; 4 + 6 = 10
+            },
+            {
+                q: "14. A series branch (C<sub>1</sub> = 12 &mu;F, C<sub>2</sub> = 6 &mu;F) is connected to a 12 V source. Find the charge Q<sub>1</sub>, voltage U<sub>1</sub>, and energy W<sub>1</sub> for C<sub>1</sub>.",
+                options: [
+                    "A) Q<sub>1</sub> = 48 &mu;C, U<sub>1</sub> = 4 V, W<sub>1</sub> = 96 &mu;J", 
+                    "B) Q<sub>1</sub> = 48 &mu;C, U<sub>1</sub> = 8 V, W<sub>1</sub> = 192 &mu;J", 
+                    "C) Q<sub>1</sub> = 72 &mu;C, U<sub>1</sub> = 6 V, W<sub>1</sub> = 216 &mu;J", 
+                    "D) Q<sub>1</sub> = 24 &mu;C, U<sub>1</sub> = 2 V, W<sub>1</sub> = 48 &mu;J"
+                ],
+                ans: "A"
+            }
+        ];
+
+        /**
+         * INITIALIZATION & RENDER
+         */
+        function renderQuestions() {
+            const container = document.getElementById('questionsContainer');
+            quizData.forEach((item, index) => {
+                let optionsHTML = item.options.map((opt, i) => {
+                    const letter = String.fromCharCode(65 + i);
+                    return `
+                    <label class="block relative cursor-pointer group">
+                        <input type="radio" name="q${index}" value="${letter}" class="peer sr-only" required>
+                        <div class="px-5 py-4 bg-slate-800 border border-slate-700 rounded-xl transition-all duration-200 hover:border-blue-500/50 group-hover:bg-slate-800/80">
+                            <div class="flex items-center text-slate-300 peer-checked:text-white">
+                                <div class="w-6 h-6 rounded-full border-2 border-slate-600 flex-shrink-0 mr-4 flex items-center justify-center transition-colors peer-checked:border-blue-500 peer-checked:bg-blue-500">
+                                    <div class="w-2.5 h-2.5 bg-white rounded-full opacity-0 peer-checked:opacity-100 transition-opacity"></div>
+                                </div>
+                                <span class="text-sm md:text-base">${opt}</span>
+                            </div>
+                        </div>
+                    </label>`;
+                }).join('');
+
+                container.innerHTML += `
+                <div class="bg-slate-800/30 p-6 rounded-2xl border border-slate-700/50 shadow-inner">
+                    <p class="text-lg font-medium text-white mb-4 leading-relaxed">${item.q}</p>
+                    <div class="space-y-3">
+                        ${optionsHTML}
+                    </div>
+                </div>`;
+            });
+        }
+
+        /**
+         * AUTHENTICATION LOGIC
+         */
+        document.getElementById('loginForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const code = document.getElementById('accessCode').value.trim();
+            const errDiv = document.getElementById('loginError');
+            
+            if (studentsDB[code]) {
+                currentUser = studentsDB[code];
+                document.getElementById('studentNameDisplay').textContent = currentUser;
+                
+                // Set Avatar Initials
+                const parts = currentUser.split('/');
+                let initials = "ST";
+                if(parts.length > 0 && parts[0].trim().length > 0) {
+                    initials = parts[0].trim().substring(0, 2);
+                    if(parts.length > 2) {
+                        initials = parts[0].trim().charAt(0) + parts[parts.length-1].trim().charAt(0);
+                    }
+                }
+                document.getElementById('avatarInitials').textContent = initials;
+
+                document.getElementById('loginOverlay').classList.add('opacity-0');
+                setTimeout(() => {
+                    document.getElementById('loginOverlay').style.display = 'none';
+                    document.getElementById('mainApp').classList.remove('hidden');
+                    renderQuestions();
+                }, 300);
+            } else {
+                errDiv.classList.remove('hidden');
+                document.getElementById('accessCode').value = '';
+            }
+        });
+
+        /**
+         * SUBMISSION PROTOCOL
+         */
+        document.getElementById('quizForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const overlay = document.getElementById('submitOverlay');
+            overlay.classList.remove('hidden');
+
+            const formData = new FormData(e.target);
+            let score = 0;
+            let ansSummary = [];
+
+            quizData.forEach((item, index) => {
+                const userAns = formData.get(`q${index}`);
+                const isCorrect = userAns === item.ans;
+                if (isCorrect) score++;
+                ansSummary.push(`Q${index+1}: ${userAns} (${isCorrect ? 'Correct' : 'Incorrect'})`);
+            });
+
+            const payload = {
+                name: currentUser,
+                topic: CONFIG.topic,
+                score: `${score}/${quizData.length}`,
+                answers: ansSummary.join(', ')
+            };
+
+            try {
+                await fetch(CONFIG.url, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                    body: JSON.stringify(payload)
+                });
+                
+                // Show Result Modal
+                overlay.classList.add('hidden');
+                document.getElementById('resultScore').textContent = `${score}/${quizData.length}`;
+                
+                const resIcon = document.getElementById('resultIcon');
+                if(score < 7) {
+                    resIcon.className = "inline-flex items-center justify-center w-20 h-20 rounded-full bg-red-500/20 text-red-400 mb-4";
+                    resIcon.innerHTML = `<svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>`;
+                }
+
+                document.getElementById('resultModal').classList.remove('hidden');
+            } catch (err) {
+                console.error("Submission Error:", err);
+                overlay.classList.add('hidden');
+                alert("Network error. Please check your connection and try again.");
+            }
+        });
+
+    </script>
+</body>
+</html>
